@@ -278,7 +278,7 @@ After finalizing a lesson:
 - If the lesson's theme, grammar point, activities, or grouping ended up different from the path row, update the row to match what was written and tell the teacher, so later lessons avoid repeats.
 - When the teacher reports what the Quick Level Check showed, update the level headcount, median, distribution, and confidence.
 - **Before** drafting Fresh Vocabulary, read the Vocabulary Log. **After** finalizing the lesson, append the new items, the grammar point, and the home assignment under a new dated heading.
-- **Before** choosing activities, read the Activity Log to apply the no-repeat rule. **After** finalizing, append the chosen activities with the date.
+- **Before** choosing activities, read the Activity Log to apply the no-repeat rule. If the record has no Activity Log yet (an older record), use the Activity Type(s) column of the Learning Path table for lessons already marked Delivered as the history instead, so repeats are avoided from the next lesson. **After** finalizing, append the chosen activities with the date.
 - If the teacher says the class already knows certain words, log those too.
 
 ## Step 5: Differentiation and common pitfalls

@@ -242,7 +242,7 @@ Maintain one file per student at `~/eng-teaching-records/<student-name-slug>.md`
 - **Create/update the Learning Path table** at the end of Step 2, and flip a lesson's Status to "Delivered <date>" immediately after generating it — this is what Step 0 reads to know which lesson is next, without asking the tutor
 - **Before** drafting Fresh Vocabulary for any lesson: read the Vocabulary Log section to see everything already taught to this student
 - **After** finalizing a lesson's activities: append the chosen Production activities to the Activity Log with the date
-- **Before** choosing activities: read the Activity Log to apply the no-repeat rule
+- **Before** choosing activities: read the Activity Log to apply the no-repeat rule. If the record has no Activity Log yet (an older record), use the Activity Type(s) column of the Learning Path table for lessons already marked Delivered as the history instead, so repeats are avoided from the next lesson
 - **After** finalizing a lesson: append the new vocab items, the grammar point, and the home assignment under a new dated heading
 - If the tutor mentions the student already knows certain words/phrases (from "anything to incorporate or exclude"), log those too so they're excluded from future lessons even though they weren't taught here
 
