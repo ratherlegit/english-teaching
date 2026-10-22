@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "english-teaching",
+  "version": "2.0.0",
+  "description": "ESL/EFL lesson planning for one-on-one tutors and group classes.",
+  "owner": {
+    "name": "Zachary Rosen"
+  },
+  "plugins": [
+    {
+      "name": "english-teaching",
+      "description": "Two skills in one install: english-tutoring for a single student and english-classroom for a group class.",
+      "source": "./",
+      "category": "education"
+    }
+  ]
+}
