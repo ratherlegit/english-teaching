@@ -23,8 +23,6 @@ One short paragraph on how to use the pack. Say: type your answers in the light 
 <!-- worksheet -->
 ## Worksheet 1: Title in plain words
 
-One sentence on what this worksheet practices.
-
 :::box
 **Grammar Focus: the point in plain words**
 The rule in one or two sentences.
@@ -72,7 +70,7 @@ Color and images are welcome. Blue is the main color of every worksheet. Other e
 
 ## Worksheet anatomy
 
-- **Focus box first**, directly under the one-sentence purpose, then the watch out box.
+- **Focus box first**, directly under the worksheet title, then the watch out box. Do not add an objective or purpose sentence: the title and the focus box already say what the worksheet is about.
 - **15 to 20 minutes** unless the profile says otherwise. About 4 to 5 parts.
 - **Order**: easier to freer. Recognize and choose, then repair, then answer questions or build sentences, then write.
 - **At least one writing task** unless the worksheet is explicitly drill-only.
@@ -90,7 +88,9 @@ Color and images are welcome. Blue is the main color of every worksheet. Other e
 
 The watch out box follows it with **exactly 2 mistakes**, written "Don't use: ... Use: ..." in the student's likely error form, with an optional reason of a few words in brackets. Never write "Not" and "Yes".
 
-Do not add a second table, more examples, or a longer dialogue. If a worksheet seems to need them, the focus is too wide: narrow it or split it into two worksheets. A second point that does not fit goes into the instruction of the activity that uses it as a single line, such as "Use 's for one owner and s' for many."
+Do not add a second table, more examples, or a longer dialogue.
+
+**Be clear, not vague.** Explain every term the first time it appears, in plain words with an example. Name a group by what its members do, not with a vague label: "action verb (a word for something you do, like work or call)" works, "normal verb" does not, because the student cannot tell what makes the others abnormal. Do not use a grammar term the student has not met (such as past participle) without defining it in the box. In a contrast table, show full example sentences in each cell, not bare words, so the difference is visible. Title the box with the question the student is answering ("describing or doing?"), not a list of forms. If a worksheet seems to need them, the focus is too wide: narrow it or split it into two worksheets. A second point that does not fit goes into the instruction of the activity that uses it as a single line, such as "Use 's for one owner and s' for many."
 
 Name the box **Grammar Focus** for grammar points and **Language Focus** for vocabulary, phrases, and word choice. Keep the name consistent across a pack.
 
@@ -150,6 +150,7 @@ Run these before exporting:
 3. The focus box fits one page at most: one rule, one table of at most 6 rows, exactly 4 examples, a 3-line dialogue. The watch out box has exactly 2 mistakes, written "Don't use: ... Use: ...".
 4. The focus table is used in at least two different activities.
 5. No activity asks the student to write out forms from a list.
+5b. Every term in the focus box is defined in plain words, and no label is vague (no "normal," "regular," or "special" verbs). Contrast tables use full example sentences.
 6. Example sentences use the student's world (work, places, interests), not generic "John goes to the shop". Every question makes sense in how the student's life really runs (nothing occasional is treated as constant).
 7. Instructions are simpler than the exercise content.
 8. No sentence copies an error sentence from the student's own speech. Same error type, new sentence.
