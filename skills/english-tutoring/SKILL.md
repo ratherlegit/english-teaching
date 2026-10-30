@@ -7,7 +7,7 @@ description: Develops lesson plans for one-on-one English tutoring of a single E
 
 Build classroom-ready English lesson plans for ESL/EFL learners. Adapt structure, depth, and format to what the user asks for — don't force a template they didn't request.
 
-**This skill covers one-on-one tutoring only.** Group classes need different personalization logic (shared themes instead of one student's interests, per-student differentiation, etc.) and are handled by the separate `english-classroom` skill — if the tutor describes a class of several students, point them to that skill rather than stretching this one to fit.
+**This skill covers one-on-one tutoring only.** Group classes need different personalization logic (shared themes instead of one student's interests, per-student differentiation, etc.) and are handled by the separate `english-classroom` skill — if the tutor describes a class of several students, point them to that skill rather than stretching this one to fit. For homework worksheets aimed at one student's recurring errors, point them to the separate `english-worksheet` skill, which reads this skill's student record.
 
 ## Step 0: Check for a returning student
 
