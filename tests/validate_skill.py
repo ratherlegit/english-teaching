@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.1.0")
+        self.assertEqual(data["version"], "2.2.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -333,11 +333,23 @@ Overview text.
 | I | am |
 :::
 
+:::box watch
+**Watch out**
+- Don't use: She working. Use: She is working.
+:::
+
+:::box bank
+am    is    are
+:::
+
+![a picture](pic.png){1.5}
+
 ### Part A: Fix it
-*Type the correct sentence in the blue box.*
+*Type the correct sentence in the colored box.*
 
 | # | Sentence | Your answer |
 |---|---|---|
+| 0 | She working now. | She is working now. |
 | 1 | I working now. |  |
 
 :::write 4
@@ -348,6 +360,12 @@ Overview text.
 
 1. went
 """
+
+# a 1x1 PNG so the image test needs no imaging library
+WS_PNG = bytes.fromhex(
+    "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489"
+    "0000000d49444154789c6360f8cfc000000301010018dd8db00000000049454e44ae426082"
+)
 
 
 class TestWorksheetSkill(unittest.TestCase):
@@ -366,7 +384,9 @@ class TestWorksheetSkill(unittest.TestCase):
     def test_design_rules_present(self):
         text = read(WS_MD)
         for phrase in ["Grammar Focus", "Design for typing", "Your answer", "`:::write`",
-                       "Never mention the tutor", "Never write \"circle,\""]:
+                       "Never mention the tutor", "Never write \"circle,\"",
+                       "Don't use: ... Use: ...", "Worked example as row 0", "no numbers inside the gaps",
+                       "make sense in the student's real life", "right time frame"]:
             self.assertIn(phrase, text, phrase)
 
     def test_no_em_dashes_and_no_student_data(self):
@@ -399,16 +419,33 @@ class TestWorksheetExporter(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp) / "pack.md"
             src.write_text(WS_SAMPLE, encoding="utf-8")
+            (Path(tmp) / "pic.png").write_bytes(WS_PNG)
             out = Path(tmp) / "pack.docx"
             result = self.run_script(str(src), str(out))
             self.assertEqual(result.returncode, 0, result.stderr)
             import zipfile
-            xml = zipfile.ZipFile(out).read("word/document.xml").decode()
+            z = zipfile.ZipFile(out)
+            xml = z.read("word/document.xml").decode()
             self.assertEqual(xml.count("w:pageBreakBefore"), 2)
-            self.assertIn("F2F2F2", xml)
-            self.assertIn("EAF1FB", xml)
-            self.assertIn("w:trHeight", xml)
-            self.assertGreaterEqual(xml.count("<w:tbl>"), 4)
+            self.assertIn("1F4E9A", xml)  # blue banner and table headers
+            self.assertNotIn("2E7D32", xml)  # every worksheet stays blue
+            self.assertIn("F3F7FD", xml)  # focus box tint
+            self.assertIn("E6EFFB", xml)  # answer cells and write box
+            self.assertIn("E3F3E6", xml)  # worked example (row 0)
+            self.assertIn("FFF6D6", xml)  # word bank
+            self.assertIn("FDECEA", xml)  # watch out box
+            self.assertIn("w:trHeight", xml)  # answer rows have a minimum height
+            self.assertGreaterEqual(xml.count("<w:tbl>"), 6)
+            self.assertTrue(any(name.startswith("word/media/") for name in z.namelist()))  # image embedded
+
+    def test_missing_image_is_skipped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "pack.md"
+            src.write_text(WS_SAMPLE, encoding="utf-8")  # pic.png is not created
+            out = Path(tmp) / "pack.docx"
+            result = self.run_script(str(src), str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("image not found", result.stderr)
 
     def test_split(self):
         with tempfile.TemporaryDirectory() as tmp:
