@@ -35,7 +35,7 @@ Save or update the profile file (format in `references/student-profile.md`) once
 Ask these, one at a time, never suggesting a default number:
 
 1. **How many worksheets do you want?** The tutor suggests the number.
-2. **One combined file, or one file per worksheet?** Both can include an overview page.
+2. **One combined file, or one file per worksheet?** The file opens straight on worksheet 1: **no cover or overview page**. The worksheets explain themselves, and the plan table goes to the tutor in chat.
 3. **Answer key?** Default yes, as a separate file the student never sees.
 4. **Vocabulary review?** Ask whenever the student has a vocabulary list or log. Default yes: one vocabulary review part in every worksheet, 6 words plus 1 worked example, taken from the student's own list.
 5. Only if not already known: minutes per worksheet (default 15 to 20) and whether speaking or recording tasks are welcome.

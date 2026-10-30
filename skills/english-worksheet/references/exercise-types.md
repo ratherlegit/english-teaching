@@ -4,9 +4,9 @@ Contents: File format, Look and feel, Worksheet anatomy, The focus box, Designin
 
 ## File format
 
-Write the whole pack as one markdown file. Separate worksheets with a line containing only `<!-- worksheet -->`. Anything before the first marker is an overview (how to use the pack, a plan table). Use `<!-- pagebreak -->` to force a page break inside a worksheet.
+Write the whole pack as one markdown file. Separate worksheets with a line containing only `<!-- worksheet -->`. Start the file with the first marker and go straight into worksheet 1: **no cover or overview page** (a how-to-use note and a plan table state the obvious; the plan goes to the tutor in chat). The exporter still accepts text before the first marker as a front page, but do not write one. Use `<!-- pagebreak -->` to force a page break inside a worksheet.
 
-- `#` is the pack title. `##` is a worksheet title (a full-width blue banner). `###` is a part heading.
+- `##` is a worksheet title (a full-width blue banner). `###` is a part heading.
 - `:::box` and `:::` is the focus box: light blue, with a blue border and title. `:::box bank` is a yellow word bank. `:::box watch` is a soft red watch out box.
 - A `|` table gets a blue header row. If its last column is headed `Your answer`, the answer cells are light blue and the student types in them. A row numbered `0` is the worked example: its answer is already filled in and its cell is light green.
 - `:::write 5` and `:::` is an empty tinted box about 5 lines tall for writing tasks.
@@ -16,10 +16,6 @@ Write the whole pack as one markdown file. Separate worksheets with a line conta
 Skeleton:
 
 ```
-# Pack Title
-
-One short paragraph on how to use the pack. Say: type your answers in the light blue boxes. A green box is an example.
-
 <!-- worksheet -->
 ## Worksheet 1: Title in plain words
 

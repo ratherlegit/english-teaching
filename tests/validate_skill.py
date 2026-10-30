@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.3.0")
+        self.assertEqual(data["version"], "2.3.1")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -387,7 +387,7 @@ class TestWorksheetSkill(unittest.TestCase):
                        "Never mention the tutor", "Never write \"circle,\"",
                        "Don't use: ... Use: ...", "no numbers inside the gaps", "worked example as row 0",
                        "every subject its own row", "Say it clearly", "vocabulary review part",
-                       "second acceptable answer", "new sentences", "right time frame", "One point per worksheet", "say exactly when each applies", "brief *Why:*"]:
+                       "second acceptable answer", "new sentences", "right time frame", "One point per worksheet", "say exactly when each applies", "brief *Why:*", "no cover or overview page"]:
             self.assertIn(phrase, text, phrase)
 
     def test_no_em_dashes_and_no_student_data(self):
