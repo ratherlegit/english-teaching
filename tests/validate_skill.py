@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.0.0")
+        self.assertEqual(data["version"], "2.1.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -292,6 +292,7 @@ class TestDocs(unittest.TestCase):
         self.assertIn("ratherlegit/english-teaching", text)
         self.assertIn("english-tutoring", text)
         self.assertIn("english-classroom", text)
+        self.assertIn("english-worksheet", text)
         self.assertIn("claude plugin install english-teaching@english-teaching", text)
         self.assertEqual(em_dash_lines(ROOT / "README.md"), [])
 
@@ -299,7 +300,9 @@ class TestDocs(unittest.TestCase):
         text = read(ROOT / "AGENTS.md")
         self.assertIn("skills/english-classroom/SKILL.md", text)
         self.assertIn("skills/english-tutoring/SKILL.md", text)
+        self.assertIn("skills/english-worksheet/SKILL.md", text)
         self.assertIn("~/eng-teaching-records/classes/", text)
+        self.assertIn("~/eng-teaching-records/worksheets/", text)
         self.assertEqual(em_dash_lines(ROOT / "AGENTS.md"), [])
 
 
@@ -309,6 +312,113 @@ class TestPublishHygiene(unittest.TestCase):
                  REFS / "class-interview.md", REFS / "differentiation.md"]
         for path in files:
             self.assertNotIn("/Users/", read(path), str(path))
+
+
+WS_DIR = ROOT / "skills" / "english-worksheet"
+WS_MD = WS_DIR / "SKILL.md"
+WS_SCRIPT = WS_DIR / "scripts" / "md_to_docx.py"
+WS_SAMPLE = """# Sample Pack
+
+Overview text.
+
+<!-- worksheet -->
+## Worksheet 1: Do I need be?
+
+:::box
+**Grammar Focus: be**
+- I am busy.
+
+| Subject | be |
+|---|---|
+| I | am |
+:::
+
+### Part A: Fix it
+*Type the correct sentence in the blue box.*
+
+| # | Sentence | Your answer |
+|---|---|---|
+| 1 | I working now. |  |
+
+:::write 4
+:::
+
+<!-- worksheet -->
+## Worksheet 2: Past tense
+
+1. went
+"""
+
+
+class TestWorksheetSkill(unittest.TestCase):
+    def test_frontmatter(self):
+        fm = frontmatter(read(WS_MD))
+        self.assertEqual(fm.get("name"), "english-worksheet")
+        self.assertGreater(len(fm.get("description", "")), 100)
+        self.assertEqual(set(fm), {"name", "description"})
+
+    def test_referenced_files_exist_and_are_linked(self):
+        for ref in re.findall(r"`(references/[\w.-]+)`", read(WS_MD)):
+            self.assertTrue((WS_DIR / ref).exists(), ref)
+        for ref in (WS_DIR / "references").glob("*.md"):
+            self.assertIn(f"references/{ref.name}", read(WS_MD), ref.name)
+
+    def test_design_rules_present(self):
+        text = read(WS_MD)
+        for phrase in ["Grammar Focus", "Design for typing", "Your answer", "`:::write`",
+                       "Never mention the tutor", "Never write \"circle,\""]:
+            self.assertIn(phrase, text, phrase)
+
+    def test_no_em_dashes_and_no_student_data(self):
+        for path in [WS_MD, *(WS_DIR / "references").glob("*.md")]:
+            self.assertNotIn(EM_DASH, read(path), str(path))
+        for path in WS_DIR.rglob("*"):
+            if path.is_file() and path.suffix in {".md", ".py"}:
+                self.assertNotIn("jay" + "den", read(path).lower(), str(path))
+
+    def test_worksheet_converter_is_its_own_file(self):
+        # english-tutoring and english-classroom share one converter; the worksheet skill's adds typed answer cells
+        self.assertIn("Your answer", read(WS_SCRIPT))
+        self.assertNotEqual(WS_SCRIPT.read_bytes(), (TUTOR_DIR / "scripts/md_to_docx.py").read_bytes())
+
+
+def _have_docx():
+    try:
+        import docx  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+@unittest.skipUnless(_have_docx(), "python-docx not installed")
+class TestWorksheetExporter(unittest.TestCase):
+    def run_script(self, *args):
+        return subprocess.run([sys.executable, str(WS_SCRIPT), *args], capture_output=True, text=True)
+
+    def test_single_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "pack.md"
+            src.write_text(WS_SAMPLE, encoding="utf-8")
+            out = Path(tmp) / "pack.docx"
+            result = self.run_script(str(src), str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            import zipfile
+            xml = zipfile.ZipFile(out).read("word/document.xml").decode()
+            self.assertEqual(xml.count("w:pageBreakBefore"), 2)
+            self.assertIn("F2F2F2", xml)
+            self.assertIn("EAF1FB", xml)
+            self.assertIn("w:trHeight", xml)
+            self.assertGreaterEqual(xml.count("<w:tbl>"), 4)
+
+    def test_split(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "pack.md"
+            src.write_text(WS_SAMPLE, encoding="utf-8")
+            out = Path(tmp) / "out"
+            result = self.run_script(str(src), str(out), "--split")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            names = sorted(p.name for p in out.glob("*.docx"))
+            self.assertEqual(names, ["00-overview.docx", "01-worksheet-1-do-i-need-be.docx", "02-worksheet-2-past-tense.docx"])
 
 
 if __name__ == "__main__":
