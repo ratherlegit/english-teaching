@@ -14,7 +14,7 @@ Both are fast first drafts, not replacements for your judgment. Every activity, 
 - Personalized vocabulary that never repeats what was already taught, with a review of prior content in every lesson
 - A weighted activity list (staples come up often, intense activities come up rarely) plus an activity log so activities do not repeat
 - American English by default, British on request
-- Editable `.docx` exports in black text only, plus a clean student handout with your private notes removed
+- Editable `.docx` exports, black text only for lesson plans and handouts (your private notes are removed from the student handout), and colorful, typing-friendly worksheets
 - Per-student and per-class memory, so "next lesson for [name]" just works
 
 ## Setting it up
