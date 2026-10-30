@@ -277,37 +277,14 @@ def shade_cell(cell, fill):
     tc_pr.append(shd)
 
 
-def set_cant_split(row):
-    """Keep a table row on one page."""
-    tr_pr = row._tr.get_or_add_trPr()
-    if tr_pr.find(qn("w:cantSplit")) is None:
-        tr_pr.append(OxmlElement("w:cantSplit"))
-    height = tr_pr.find(qn("w:trHeight"))
-    if height is not None:  # schema order: cantSplit comes before trHeight
-        tr_pr.remove(height)
-        tr_pr.append(height)
-
-
-def keep_table_together(table):
-    """Rows never split, and every row stays with the next, so a short table or a write box
-    moves to the next page as one piece instead of leaving a row or box alone."""
-    last = len(table.rows) - 1
-    for r_idx, row in enumerate(table.rows):
-        set_cant_split(row)
-        if r_idx < last:
-            for cell in row.cells:
-                for paragraph in cell.paragraphs:
-                    paragraph.paragraph_format.keep_with_next = True
-
-
 def set_row_min_height(row, inches):
     """Make a table row at least `inches` tall (it still grows when text is typed)."""
     tr_pr = row._tr.get_or_add_trPr()
+    tr_pr.append(OxmlElement("w:cantSplit"))  # a single row never breaks across pages; the table itself flows
     height = OxmlElement("w:trHeight")
     height.set(qn("w:val"), str(int(inches * 1440)))
     height.set(qn("w:hRule"), "atLeast")
     tr_pr.append(height)
-    tr_pr.append(OxmlElement("w:cantSplit"))
 
 
 def set_column_widths(table, widths_in_inches):
@@ -335,12 +312,24 @@ def set_column_widths(table, widths_in_inches):
 
 
 def proportional_widths(rows, total_inches):
-    """Column widths in proportion to the longest text in each column (min 0.7 inch)."""
+    """Column widths in proportion to the longest text in each column. A column is never
+    narrower than its longest single word, so no word is ever broken across lines."""
     cols = len(rows[0])
-    weights = [max(len(re.sub(r"[*_]", "", r[c])) if c < len(r) else 0 for r in rows) for c in range(cols)]
-    weights = [min(max(w, 6), 40) for w in weights]
-    scale = total_inches / sum(weights)
-    widths = [max(0.7, w * scale) for w in weights]
+    cells = [[re.sub(r"[*_]", "", r[c]) if c < len(r) else "" for r in rows] for c in range(cols)]
+    weights = [min(max(max(len(t) for t in col), 6), 40) for col in cells]
+    floors = [max(len(w) for t in col for w in (t.split() or [""])) * 0.105 + 0.25 for col in cells]
+    widths = [total_inches * w / sum(weights) for w in weights]
+    for _ in range(cols):  # raise narrow columns to their floor, taking the space from the roomiest
+        short = [i for i in range(cols) if widths[i] < floors[i]]
+        if not short:
+            break
+        for i in short:
+            take = floors[i] - widths[i]
+            donor = max((j for j in range(cols) if j not in short), key=lambda j: widths[j] - floors[j], default=None)
+            if donor is None:
+                break
+            widths[donor] -= take
+            widths[i] = floors[i]
     scale = total_inches / sum(widths)
     return [w * scale for w in widths]
 
@@ -408,7 +397,7 @@ def add_box(doc, box_lines, theme, kind="focus"):
         p.paragraph_format.space_before = Pt(0)
         p.paragraph_format.space_after = Pt(3)
         if text.startswith("- ") or text.startswith("* "):
-            text = "• " + text[2:].strip()
+            text = text[2:].strip()  # no bullet dots inside boxes: each item is its own line
         add_inline_runs(p, text)
         is_label = text.startswith("**") and text.endswith("**") and text.count("**") == 2
         if first_text and is_label:
@@ -420,7 +409,6 @@ def add_box(doc, box_lines, theme, kind="focus"):
         k += 1
     if cell._tc[-1].tag == qn("w:tbl"):
         cell.add_paragraph()  # a cell cannot end with a table
-    set_cant_split(table.rows[0])
     doc.add_paragraph().paragraph_format.space_after = Pt(0)
 
 
@@ -449,7 +437,6 @@ def add_write_box(doc, lines_tall, theme):
     shade_cell(cell, theme["answer"])
     set_column_widths(table, [6.5])
     set_row_min_height(table.rows[0], max(0.5, lines_tall * 0.27))
-    keep_table_together(table)
     doc.add_paragraph()
 
 
@@ -482,7 +469,6 @@ def add_table(doc, header_cells, rows, theme):
         set_column_widths(table, widths)
     else:
         set_column_widths(table, proportional_widths([header_cells] + rows, 6.5))
-    keep_table_together(table)
     doc.add_paragraph()
 
 
