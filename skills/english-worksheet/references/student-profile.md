@@ -15,6 +15,7 @@ Extract:
 | Strengths | Analyses, transcripts |
 | Student's own stated weaknesses and goals | Transcripts (the student often names them) |
 | Vocabulary and grammar already taught | Vocabulary logs, old handouts, coursebook units |
+| Vocabulary list or log (words and when they were taught) | Student record, lesson plans, handouts; used for the vocabulary review parts |
 | Practical preferences | Session length, homework time, tone, simplicity of instructions |
 
 **If the only source is a raw transcript**, do the analysis first:
@@ -75,6 +76,7 @@ Save to `~/eng-teaching-records/worksheets/<name-slug>.md`:
 - Minutes per worksheet:
 - Speaking tasks OK: yes/no
 - Instruction style: standard / extra simple
+- Vocabulary review: yes/no, words per worksheet (default 6 plus a worked example), source list
 - Exclusions:
 
 ## Sources
