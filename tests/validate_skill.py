@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.4.1")
+        self.assertEqual(data["version"], "2.5.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -503,6 +503,24 @@ class TestStudentAnalysisSkill(unittest.TestCase):
                                  capture_output=True, text=True)
         self.assertEqual(out.returncode, 0, out.stderr)
         self.assertIn("Maria", out.stdout)
+
+    def test_one_pager_builder(self):
+        try:
+            import docx  # noqa: F401
+        except ImportError:
+            self.skipTest("python-docx not installed")
+        script = SA_DIR / "scripts" / "one_pager_docx.py"
+        short = "# Maria: One-Page Summary\n*Level B1+ | Score 63/100*\n\n| Fluency | Grammar |\n|---|---|\n| 18/25 | 14/25 |\n\n## Strengths\n- Clear stories\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            md, out = Path(tmp) / "p.md", Path(tmp) / "p.docx"
+            md.write_text(short, encoding="utf-8")
+            ok = subprocess.run([sys.executable, str(script), str(md), str(out)], capture_output=True, text=True)
+            self.assertEqual(ok.returncode, 0, ok.stderr)
+            self.assertTrue(out.exists())
+            md.write_text("# T\n\n" + ("word " * 500) + "\n", encoding="utf-8")
+            bad = subprocess.run([sys.executable, str(script), str(md), str(out)], capture_output=True, text=True)
+            self.assertNotEqual(bad.returncode, 0)
+            self.assertIn("Too long for one page", bad.stderr)
 
 
 if __name__ == "__main__":

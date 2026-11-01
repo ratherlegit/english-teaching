@@ -1,6 +1,6 @@
 ---
 name: english-analysis
-description: "Transcribe a recorded one-on-one English lesson, label tutor vs. student, and score the student's speaking (CEFR level plus 1-100) into their record for later lesson planning. Use when the tutor shares lesson audio or video, or asks for a transcript, speaker labels, or a speaking analysis of a student. Steps and tools: (1) unpack and join audio: Bash, scripts/prepare_audio.py (ffmpeg); (2) transcribe locally: scripts/transcribe.py (faster-whisper, run in background); (3) check the transcript: Read; (4) label speakers: Write; (5) measure talk time and fillers: scripts/talk_stats.py; (6) score and analyze: Read the student record and references/scoring-rubric.md; (7) save analysis and update the record: Bash and Edit in ~/eng-teaching-records/."
+description: "Transcribe a recorded one-on-one English lesson, label tutor vs. student, and score the student's speaking (CEFR level plus 1-100) into their record for later lesson planning. Use when the tutor shares lesson audio or video, or asks for a transcript, speaker labels, a speaking analysis, or a one-pager for a student. Steps and tools: (1) unpack and join audio: Bash, scripts/prepare_audio.py (ffmpeg); (2) transcribe locally: scripts/transcribe.py (faster-whisper, run in background); (3) check the transcript: Read; (4) label speakers: Write; (5) measure talk time and fillers: scripts/talk_stats.py; (6) score and analyze: Read the student record and references/scoring-rubric.md; (7) save analysis and update the record: Bash and Edit in ~/eng-teaching-records/; (8) one-page student summary (also on request from the saved analysis, no recording needed): Write plus scripts/one_pager_docx.py (python-docx)."
 ---
 
 # English Analysis
@@ -20,6 +20,7 @@ Copy this checklist and tick it off:
 - [ ] 6. Run talk_stats
 - [ ] 7. Score and analyze
 - [ ] 8. Save to the record, report
+- [ ] 9. Build the one-pager
 ```
 
 ### 1. Read the student record (Read)
@@ -59,6 +60,9 @@ Respect the profile's tutor preferences in the teaching notes. If the tutor want
 Back up the record, then append the Analysis section and update the Learning Path and Vocabulary Log as described in `references/record-format.md`. Do not change the profile level without the tutor's agreement. Verify the edits by grepping the new lines.
 
 Report to the tutor: level and score with the three parts, the top strengths and areas to improve, talk-time share, and the file paths written. State what is uncertain: speaker labels, machine-corrected errors, recording conditions, single-session estimate.
+
+### 9. Build the one-pager (Write, then scripts/one_pager_docx.py)
+Follow `references/one-pager.md`. Write `~/eng-teaching-records/one-pagers/<slug>-one-pager.md` from the Analysis section just saved, then `python3 scripts/one_pager_docx.py <md> <docx>` (plain python3, not -I). The script refuses a page over the length budget; cut bullets and run again. Tell the tutor the file paths. The tutor can also ask for a one-pager at any time with no new recording: read the latest Analysis section and profile, and say so if there is no analysis yet.
 
 ## Style
 No em dashes anywhere. Use the profile's pronouns. Quote exact learner phrases for every error pattern.
