@@ -59,12 +59,14 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 - Writes the number of worksheets you ask for, each on one point only, opening with a clear Grammar Focus box and a Watch out box
 - Includes a vocabulary review part of 6 words with a worked example, taken from the student's own list
 - Exports typing-friendly `.docx` files (one combined file or one per worksheet) with the answer key as a separate file the student never sees
+- Uses the latest speaking Analysis in the student's record as its main evidence: the error patterns become the focus areas, and words marked partial or re-taught decide the vocabulary review
+- Checks its own work before export: examples must show each step the rule asks for, the focus and Watch out boxes are measured to fit one page, and "Answer about you" questions must have a natural one-sentence answer
 - Reads the student's tutoring record but never changes it
 
 **Why it helps**
 - Practice goes where the student's mistakes actually are, in priority order
 - Sheets are ready to type into in Word or Google Docs, with a worked example in every exercise
-- You can paste in an analysis from a recorded lesson and get homework from it in one step
+- After english-analysis scores a recorded lesson, the homework starts from that analysis, with no copying and pasting
 
 ## english-analysis: turn a recorded lesson into evidence
 
@@ -129,6 +131,8 @@ Use ChatGPT's **Projects** feature, once per skill:
 2. Download this repository as a ZIP from the green **Code** button and unzip it. Upload that skill's `references/` files to the project.
 3. Create a new Project, paste the copied text into its instructions, and ask for lessons as normal.
 
+`english-analysis` is not available this way: it needs a computer that can run `ffmpeg` and `faster-whisper`, so use it in Claude Code or another tool with a shell.
+
 ### OpenAI Codex, Cursor, Aider, Windsurf, Gemini CLI, and others
 
 These read `AGENTS.md` automatically. Clone the repo, open it in your tool, and ask for a lesson plan:
@@ -139,11 +143,11 @@ git clone https://github.com/ratherlegit/english-teaching.git
 
 ## Exporting to Word
 
-Every lesson plan, handout, and path table can be exported as a `.docx` in black text only. This needs an environment that can run code. Without one, you get clean markdown to paste into Word or Google Docs.
+Every lesson plan, handout, path table, and the tutor-only one-page summary can be exported as a `.docx` in black text only. Worksheets are the exception: they use light colors and typed-answer cells. This needs an environment that can run code. Without one, you get clean markdown to paste into Word or Google Docs.
 
 ## Where your information is kept
 
-Student profiles live in `~/eng-teaching-records/`, class records in `~/eng-teaching-records/classes/`, and worksheet profiles and logs in `~/eng-teaching-records/worksheets/`, outside the skill folders so they survive updates. The worksheet skill reads a student's tutoring record but never changes it. Lesson transcripts live in `~/eng-teaching-records/transcripts/`, and the analysis skill adds an Analysis section to the student's tutoring record. Analysis needs Python 3 with `faster-whisper` and `ffmpeg` installed (`pip install faster-whisper`).
+Student profiles live in `~/eng-teaching-records/`, class records in `~/eng-teaching-records/classes/`, and worksheet profiles and logs in `~/eng-teaching-records/worksheets/`, outside the skill folders so they survive updates. The worksheet skill reads a student's tutoring record, including its latest Analysis section, but never changes it. One-page student summaries live in `~/eng-teaching-records/one-pagers/`. Lesson transcripts live in `~/eng-teaching-records/transcripts/`, and the analysis skill adds an Analysis section to the student's tutoring record. Analysis needs Python 3 with `faster-whisper` and `ffmpeg` installed (`pip install faster-whisper`).
 
 ## For developers
 
@@ -153,4 +157,4 @@ The worksheet skill began as the standalone `english-worksheet` repo, now archiv
 
 ## License
 
-MIT
+MIT. The tools the skills call (`python-docx`, `faster-whisper`, `ffmpeg`) are not bundled: you install them separately, and each keeps its own license.

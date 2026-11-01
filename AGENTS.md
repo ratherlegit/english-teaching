@@ -6,12 +6,12 @@ Pick the skill that matches the request and follow its instructions in full:
 
 - **One student**: `skills/english-tutoring/SKILL.md`. Records live in `~/eng-teaching-records/`.
 - **A class of several students**: `skills/english-classroom/SKILL.md`. Records live in `~/eng-teaching-records/classes/`. Never read or modify the one-on-one files from this skill.
-- **Homework worksheets for one student**: `skills/english-worksheet/SKILL.md`. Records live in `~/eng-teaching-records/worksheets/`. It may read the student's english-tutoring record, never write to it.
-- **A recorded lesson to transcribe and score**: `skills/english-analysis/SKILL.md`. Writes transcripts to `~/eng-teaching-records/transcripts/` and appends an Analysis section to the student's english-tutoring record.
+- **Homework worksheets for one student**: `skills/english-worksheet/SKILL.md`. Records live in `~/eng-teaching-records/worksheets/`. It may read the student's english-tutoring record, including its latest `## Analysis` section, never write to it.
+- **A recorded lesson to transcribe and score**: `skills/english-analysis/SKILL.md`. Writes transcripts to `~/eng-teaching-records/transcripts/` appends an Analysis section to the student's english-tutoring record, and builds tutor-only one-page summaries in `~/eng-teaching-records/one-pagers/`. Needs Python 3 with `faster-whisper`, `python-docx` and `ffmpeg`, so it works only in a harness with a shell.
 
 Each skill reads its own `references/` folder from this repo. Record folders live outside the repo on purpose so they survive updates (create them if missing).
 
-**Exporting to .docx** works on any harness with shell access: run the bundled `scripts/md_to_docx.py` inside the skill's folder (english-worksheet has its own version with typed answer cells) (requires `pip install python-docx`). In a chat-only harness with no code execution, say so plainly and give clean, paste-ready markdown instead.
+**Exporting to .docx** works on any harness with shell access: run the bundled `scripts/md_to_docx.py` inside the skill's folder (english-worksheet has its own version with typed answer cells, and english-analysis has `one_pager_docx.py` for its one-page summary) (requires `pip install python-docx`). In a chat-only harness with no code execution, say so plainly and give clean, paste-ready markdown instead.
 
 **Platform notes:**
 - **Codex, Aider, Cursor, Windsurf, RooCode/Cline, Gemini CLI**: no setup, just have this repo open.
