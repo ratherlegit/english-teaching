@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.4.0")
+        self.assertEqual(data["version"], "2.4.1")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -293,7 +293,7 @@ class TestDocs(unittest.TestCase):
         self.assertIn("english-tutoring", text)
         self.assertIn("english-classroom", text)
         self.assertIn("english-worksheet", text)
-        self.assertIn("english-student-analysis", text)
+        self.assertIn("english-analysis", text)
         self.assertIn("claude plugin install english-teaching@english-teaching", text)
         self.assertEqual(em_dash_lines(ROOT / "README.md"), [])
 
@@ -302,7 +302,7 @@ class TestDocs(unittest.TestCase):
         self.assertIn("skills/english-classroom/SKILL.md", text)
         self.assertIn("skills/english-tutoring/SKILL.md", text)
         self.assertIn("skills/english-worksheet/SKILL.md", text)
-        self.assertIn("skills/english-student-analysis/SKILL.md", text)
+        self.assertIn("skills/english-analysis/SKILL.md", text)
         self.assertIn("~/eng-teaching-records/classes/", text)
         self.assertIn("~/eng-teaching-records/worksheets/", text)
         self.assertEqual(em_dash_lines(ROOT / "AGENTS.md"), [])
@@ -461,14 +461,14 @@ class TestWorksheetExporter(unittest.TestCase):
             self.assertEqual(names, ["00-overview.docx", "01-worksheet-1-do-i-need-be.docx", "02-worksheet-2-past-tense.docx"])
 
 
-SA_DIR = ROOT / "skills" / "english-student-analysis"
+SA_DIR = ROOT / "skills" / "english-analysis"
 SA_MD = SA_DIR / "SKILL.md"
 
 
 class TestStudentAnalysisSkill(unittest.TestCase):
     def test_frontmatter(self):
         fm = frontmatter(read(SA_MD))
-        self.assertEqual(fm.get("name"), "english-student-analysis")
+        self.assertEqual(fm.get("name"), "english-analysis")
         self.assertEqual(set(fm), {"name", "description"})
         self.assertLessEqual(len(fm["description"]), 1026)
 

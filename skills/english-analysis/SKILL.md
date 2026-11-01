@@ -1,9 +1,9 @@
 ---
-name: english-student-analysis
+name: english-analysis
 description: "Transcribe a recorded one-on-one English lesson, label tutor vs. student, and score the student's speaking (CEFR level plus 1-100) into their record for later lesson planning. Use when the tutor shares lesson audio or video, or asks for a transcript, speaker labels, or a speaking analysis of a student. Steps and tools: (1) unpack and join audio: Bash, scripts/prepare_audio.py (ffmpeg); (2) transcribe locally: scripts/transcribe.py (faster-whisper, run in background); (3) check the transcript: Read; (4) label speakers: Write; (5) measure talk time and fillers: scripts/talk_stats.py; (6) score and analyze: Read the student record and references/scoring-rubric.md; (7) save analysis and update the record: Bash and Edit in ~/eng-teaching-records/."
 ---
 
-# English Student Analysis
+# English Analysis
 
 Turn a lesson recording into a labeled transcript and a speaking analysis saved in the student's record, so the english-tutoring skill can use it when planning the next lesson. Everything runs locally; student audio is never uploaded.
 

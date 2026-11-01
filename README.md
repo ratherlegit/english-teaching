@@ -5,7 +5,7 @@
 - **english-tutoring**: one student at a time. Interviews you, drafts a personalized lesson or a whole multi-lesson course, and remembers the student for next time.
 - **english-classroom**: a class of several students. Plans lessons that work for everyone in the room at once, with Support, Core, and Stretch versions of every activity and suggested groupings.
 - **english-worksheet**: homework for one student. Builds a profile from data you already have (or a short interview), then writes the number of worksheets you ask for, each opening with a clear grammar or language focus and built for typing in Word or Google Docs.
-- **english-student-analysis**: a recorded lesson in, a student record update out. Transcribes the audio on your own computer (nothing is uploaded), labels tutor and student, measures talk time, then scores the student's speaking with a CEFR level and a score out of 100 and saves the strengths, error patterns and next steps to their record for the next lesson plan.
+- **english-analysis**: a recorded lesson in, a student record update out. Transcribes the audio on your own computer (nothing is uploaded), labels tutor and student, measures talk time, then scores the student's speaking with a CEFR level and a score out of 100 and saves the strengths, error patterns and next steps to their record for the next lesson plan.
 
 Both are fast first drafts, not replacements for your judgment. Every activity, question, and note is meant to be reviewed, edited, or swapped. Each skill points to the other when a request fits it better.
 
@@ -35,7 +35,7 @@ Both are fast first drafts, not replacements for your judgment. Every activity, 
 3. Choose **Add from a repository**, enter `ratherlegit/english-teaching`, and confirm.
 4. Search for `english-teaching` and click **Add** to install it.
 
-Then type `/english-tutoring`, `/english-classroom`, `/english-worksheet`, or `/english-student-analysis` to get started.
+Then type `/english-tutoring`, `/english-classroom`, `/english-worksheet`, or `/english-analysis` to get started.
 
 ### Claude Code
 
@@ -44,7 +44,7 @@ claude plugin marketplace add ratherlegit/english-teaching
 claude plugin install english-teaching@english-teaching
 ```
 
-Then ask in plain English, for example *"Plan a B1 speaking lesson for my student Maria"* or *"Plan a lesson for my class of 12 B1 teens."* To invoke a skill explicitly: `/english-teaching:english-tutoring`, `/english-teaching:english-classroom`, `/english-teaching:english-worksheet`, or `/english-teaching:english-student-analysis`.
+Then ask in plain English, for example *"Plan a B1 speaking lesson for my student Maria"* or *"Plan a lesson for my class of 12 B1 teens."* To invoke a skill explicitly: `/english-teaching:english-tutoring`, `/english-teaching:english-classroom`, `/english-teaching:english-worksheet`, or `/english-teaching:english-analysis`.
 
 If you installed the older standalone `english-tutoring` or `english-classroom` plugins, uninstall them first so you do not get duplicates.
 
