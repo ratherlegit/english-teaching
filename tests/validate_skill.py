@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.3.1")
+        self.assertEqual(data["version"], "2.4.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -293,6 +293,7 @@ class TestDocs(unittest.TestCase):
         self.assertIn("english-tutoring", text)
         self.assertIn("english-classroom", text)
         self.assertIn("english-worksheet", text)
+        self.assertIn("english-student-analysis", text)
         self.assertIn("claude plugin install english-teaching@english-teaching", text)
         self.assertEqual(em_dash_lines(ROOT / "README.md"), [])
 
@@ -301,6 +302,7 @@ class TestDocs(unittest.TestCase):
         self.assertIn("skills/english-classroom/SKILL.md", text)
         self.assertIn("skills/english-tutoring/SKILL.md", text)
         self.assertIn("skills/english-worksheet/SKILL.md", text)
+        self.assertIn("skills/english-student-analysis/SKILL.md", text)
         self.assertIn("~/eng-teaching-records/classes/", text)
         self.assertIn("~/eng-teaching-records/worksheets/", text)
         self.assertEqual(em_dash_lines(ROOT / "AGENTS.md"), [])
@@ -457,6 +459,50 @@ class TestWorksheetExporter(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             names = sorted(p.name for p in out.glob("*.docx"))
             self.assertEqual(names, ["00-overview.docx", "01-worksheet-1-do-i-need-be.docx", "02-worksheet-2-past-tense.docx"])
+
+
+SA_DIR = ROOT / "skills" / "english-student-analysis"
+SA_MD = SA_DIR / "SKILL.md"
+
+
+class TestStudentAnalysisSkill(unittest.TestCase):
+    def test_frontmatter(self):
+        fm = frontmatter(read(SA_MD))
+        self.assertEqual(fm.get("name"), "english-student-analysis")
+        self.assertEqual(set(fm), {"name", "description"})
+        self.assertLessEqual(len(fm["description"]), 1026)
+
+    def test_referenced_files_exist_and_are_linked(self):
+        text = read(SA_MD)
+        for ref in re.findall(r"`((?:references|scripts)/[\w.-]+)`", text):
+            self.assertTrue((SA_DIR / ref).exists(), ref)
+        for ref in (SA_DIR / "references").glob("*.md"):
+            self.assertIn(f"references/{ref.name}", text, ref.name)
+        for script in (SA_DIR / "scripts").glob("*.py"):
+            self.assertIn(f"scripts/{script.name}", text, script.name)
+
+    def test_scripts_compile(self):
+        for script in (SA_DIR / "scripts").glob("*.py"):
+            compile(read(script), str(script), "exec")
+
+    def test_no_em_dashes_no_student_data_no_local_paths(self):
+        for path in SA_DIR.rglob("*"):
+            if path.is_file() and path.suffix in {".md", ".py"}:
+                text = read(path)
+                self.assertNotIn(EM_DASH, text, str(path))
+                self.assertNotIn("/Users/", text, str(path))
+                for name in ("jay" + "den", "ole" + "na"):
+                    self.assertNotIn(name, text.lower(), str(path))
+
+    def test_talk_stats_runs(self):
+        sample = "# T\n\n---\n\n**[00:01] Tutor:** How was your week?\n\n**[00:05] Maria:** It was good, uh, I like it.\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "t.md"
+            path.write_text(sample, encoding="utf-8")
+            out = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "talk_stats.py"), str(path), "Maria"],
+                                 capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertIn("Maria", out.stdout)
 
 
 if __name__ == "__main__":

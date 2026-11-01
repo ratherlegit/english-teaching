@@ -1,0 +1,44 @@
+# Record and transcript formats
+
+## Contents
+- Where files go
+- Labeled transcript file
+- Analysis section
+- Other updates to the student record
+- Style rules
+
+## Where files go
+- Records: `~/eng-teaching-records/<student-slug>.md` (lowercase, hyphens). Never inside a skill folder.
+- Transcripts: `~/eng-teaching-records/transcripts/<student-slug>-<YYYY-MM-DD>-transcript.md`. Create the folder if missing.
+- Read the student record first (profile, learning path, vocabulary log). If none exists, run the english-tutoring skill's Step 1 interview or ask the tutor for the basics before analyzing.
+- Back up the record before editing (copy to the scratchpad).
+
+## Labeled transcript file
+Heading `# <Name>: Lesson Transcript, <date> (<lesson label>)`, then a short "How reliable this is" block (source file and length, Whisper model, labels inferred from context, uncertain lines marked, Whisper may have corrected learner grammar, pronunciation cannot be judged, recording conditions), then `---` on its own line, then turns in this exact form (talk_stats.py parses it):
+
+`**[12:34] Tutor:** text` and `**[12:40] Student:** text` (use the student's first name as the label).
+
+Keep the student's words verbatim, errors included. Put analyst notes in square brackets, e.g. `[probably "proposal"]`, `[speaker uncertain]`. Merge consecutive lines from one speaker into one turn.
+
+## Analysis section
+Append at the end of the student record as `## Analysis: transcript of <date(s)> (<lesson label>; source: transcripts/<file>)`. First line: "Estimate from N recording(s), not a validated test..." plus conditions. Then bullets, in this order:
+- Overall: level, score /100, the three parts and sum (match the anchors), pronunciation not scored
+- Talk time: student % of words, tutor %, which prompts produced the best and weakest output
+- Strengths (specific, with quoted examples)
+- Grammar errors in priority order, each with quoted examples
+- Fluency: fillers (raw counts and what they mean), pauses, restarts, linking words
+- Vocabulary recall from earlier lessons: for each reviewed word, solid / partial / re-taught, with the date it was logged; then the pattern
+- Listening: what was missed or needed repeating
+- Pronunciation targets (low confidence, confirm by ear)
+- Context for warm-ups (family, work, interests mentioned)
+- Teaching notes: concrete next steps that respect the profile's tutor preferences (for example light grammar, no grammar checks)
+
+## Other updates to the student record
+- Learning Path: set the delivered lesson's Status to "Delivered <date> (confirmed by recording)" and note which planned activities were and were not covered.
+- Vocabulary Log: rename the lesson's heading from planned to delivered and list the words actually reviewed or newly mentioned.
+- Profile Level: change only if the tutor agrees.
+
+## Style rules
+- No em dashes in any output. Use periods, commas, colons or parentheses.
+- Use the pronouns in the profile; they/them if none are stated.
+- CEFR levels, not letter grades.

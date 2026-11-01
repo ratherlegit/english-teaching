@@ -7,6 +7,7 @@ Pick the skill that matches the request and follow its instructions in full:
 - **One student**: `skills/english-tutoring/SKILL.md`. Records live in `~/eng-teaching-records/`.
 - **A class of several students**: `skills/english-classroom/SKILL.md`. Records live in `~/eng-teaching-records/classes/`. Never read or modify the one-on-one files from this skill.
 - **Homework worksheets for one student**: `skills/english-worksheet/SKILL.md`. Records live in `~/eng-teaching-records/worksheets/`. It may read the student's english-tutoring record, never write to it.
+- **A recorded lesson to transcribe and score**: `skills/english-student-analysis/SKILL.md`. Writes transcripts to `~/eng-teaching-records/transcripts/` and appends an Analysis section to the student's english-tutoring record.
 
 Each skill reads its own `references/` folder from this repo. Record folders live outside the repo on purpose so they survive updates (create them if missing).
 
