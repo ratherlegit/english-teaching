@@ -12,7 +12,7 @@ Build homework worksheets that target what one learner actually gets wrong, then
 Look for the student by name before asking anything.
 
 1. `~/eng-teaching-records/worksheets/<name-slug>.md` (lowercase, hyphens). This skill's own file: profile, focus areas, worksheet log. If it exists, load it, skip Step 1, and ask only whether anything changed since last time.
-2. `~/eng-teaching-records/<name-slug>.md`, the english-tutoring record. Read-only. Import level, interests, goal, location, English variety, vocabulary log, and grammar already covered. Never write to this file.
+2. `~/eng-teaching-records/<name-slug>.md`, the english-tutoring record. Read-only. Import level, interests, goal, location, English variety, vocabulary log, and grammar already covered. Never write to this file. **If it has an `## Analysis` section** (written by english-analysis from a recorded lesson), read the most recent one and use it as the main evidence for focus areas, as described in `references/student-profile.md` ("Using a saved Analysis").
 
 Create `~/eng-teaching-records/worksheets/` if it does not exist. Records live outside the skill folder on purpose, so they survive updates.
 

@@ -25,6 +25,15 @@ Extract:
 - Quote the evidence for every pattern. The tutor must be able to check it.
 - Do not guess pronunciation from text. Note pronunciation items as low confidence unless the student or tutor raised them.
 
+**Using a saved Analysis.** The student record may end with one or more `## Analysis` sections from english-analysis. Use the most recent as the primary evidence:
+- Grammar errors, in its priority order, become the focus areas. Its quotes are the evidence, so reuse them (as "fix the mistake" items, never "you said").
+- Vocabulary recall marked partial or re-taught decides which words go in the vocabulary review parts. Skip words marked solid.
+- Strengths and anything it lists as mastered are excluded, as the profile rules already say.
+- Pronunciation targets: use only if the tutor wants speaking or recording tasks, and mark them low confidence.
+- Fluency, listening and teaching notes can steer exercise types and tone. The tutor's current answers win on any conflict.
+- If older Analysis sections show an error disappearing, treat it as fixed. If it persists across two, move it up.
+- Never put scores or CEFR numbers on a worksheet.
+
 **If a written analysis already exists**, use it as the starting point, but spot-check at least two of its claims against the raw evidence when the evidence is available.
 
 After extraction, show the profile in one compact block (see format below) and ask the tutor to confirm or correct. Ask interview questions only for fields still empty.
