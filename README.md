@@ -75,10 +75,12 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 - Scores speaking with a CEFR level (with half-steps such as B1+) and a score out of 100 built from fluency, vocabulary and grammar, each out of 25, using calibration anchors so scores stay consistent
 - Checks which earlier vocabulary the student recalled, needed a hint for, or had to be re-taught
 - Saves the transcript to `~/eng-teaching-records/transcripts/` and adds an Analysis section to the student's tutoring record, with strengths, error patterns in priority order and teaching notes that follow your preferences
+- Builds a tutor-only one-page summary per student as an editable `.docx` (level, score, strengths, top three things to work on with quoted examples, vocabulary check, talk time, next-lesson focus), on request at any time from the saved analysis. A length limit keeps it to one page
 
 **Why it helps**
 - The next lesson plan, and the homework from english-worksheet, start from what the student really said
 - You can see progress between recordings and how much of the talking the student does
+- A one-page summary you can read in a minute before planning, instead of rereading a long record
 - Level changes are your decision: the skill reports whether a recording supports the current level and leaves the profile alone until you agree
 
 ## Shared by all four skills
