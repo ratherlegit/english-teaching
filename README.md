@@ -19,7 +19,9 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 - Starts with a teacher interview (detailed or light), or imports old lesson plans and vocabulary lists so earlier work is not repeated
 - Designs a multi-lesson learning path as a table you approve or adjust before any lesson is written
 - Writes each lesson in a fixed order: objective, a fresh warm-up, review of earlier vocabulary, new vocabulary, grammar focus, 2 to 3 activities, wrap-up and optional home assignment
-- Picks new vocabulary about one CEFR level above the student, tied to their interests, and never repeats a word already taught
+- Shows about 20 candidate words (with definitions and examples) before anything else is written, lets you narrow them to the ones you want, and builds the whole lesson around those words, each used at least twice
+- Picks new vocabulary about one CEFR level above the student, tied to their interests, and never repeats a word already taught. Only the words you keep are logged
+- Uses the latest speaking analysis in the student's record to aim the lesson at their real errors and to review the words they were shakiest on
 - Lets you choose grammar depth (strong, light or none) and where teacher's notes go (inline, at the end, or not at all)
 - Builds activities from a weighted list so staples come up often and intense ones rarely, with an activity log to avoid repeats
 - Produces a separate student handout with your private notes removed, and exports editable `.docx` files
