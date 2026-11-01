@@ -79,7 +79,7 @@ Color and images are welcome. Blue is the main color of every worksheet. Other e
 
 1. **The rule**, in plain words. Say what the point does for the speaker ("use this to talk about plans").
 2. **One small provided table or pattern** (at most 6 rows, or all 7 subjects for a verb paradigm) that the activities use again. This replaces any "write all the forms" activity.
-3. **Exactly 4 examples** that show dynamic use, not four versions of one sentence. Vary the sentence type (statement, question, negative), the subject, and the setting, in the student's work world. Bold the target.
+3. **Exactly 4 examples** that show dynamic use, not four versions of one sentence. Vary the sentence type (statement, question, negative), the subject, and the setting, in the student's work world. Bold the target. **If the rule tells the student to do something (replace the subject with a pronoun, find the main noun, add -s), every example must show that step and its result in the sentence, for example "The **number** of orders **was** low. → **It was** low." A label like "(it)" does not count.**
 4. **A 3-line dialogue** under the label "In real use", in a real work situation, with the target in bold.
 
 The watch out box follows, with **exactly 2 mistakes**, each written "Don't use: ... Use: ..." in the student's likely error form, then a brief *Why:* in italics. The Why is one short sentence that gives the reason for the change, not a restatement of the rule. Bad: "No word after call." Good: "Why: call already connects to the person, so nothing goes between." Never write "Not" and "Yes".
@@ -118,7 +118,7 @@ Students open the file in Word or Google Docs and type in it. So:
 | Fill the gaps in a text | Verbs, articles, prepositions, linking words | 6 to 10 gaps in one short text | Word bank or the focus table supplies the answers |
 | Match and type | Vocabulary and meanings, situations and reactions | 6 to 8 | Student types the letter |
 | Use the table | Anything from the focus table | 5 to 6 | Questions that need the table: "Which form fits this sentence?" |
-| Answer about you | Real use of the point | 4 to 5 questions | Full-sentence answers about the student's own life, specific, with the target form as the natural answer. Never ask what a third person does, and never ask a vague question like "What does your manager check every day?" |
+| Answer about you | Real use of the point | 4 to 5 questions | Full-sentence answers about the student's own life, specific, with the target form as the natural answer. Never ask what a third person does, and never ask a vague question like "What does your manager check every day?" **Every question must have a natural answer of one sentence.** Never ask about each or all of a group ("What does each person on your team do?") or for a list of people or things, unless the question says "name two". Never ask a "who" question whose answer is a name or a list of names: names are not sentence practice. Ask for a goal, a reason, a comparison, an opinion or a description instead, and prefer a topic the student would find interesting, not a plain fact about their surroundings (for example not "How is the electricity today?") |
 | Join or transform | Rules, conditionals, reported speech | 4 to 5 | Give the first answer as a model |
 | Build a sentence | Structure, questions | 4 to 5 | Give the words and ask for a sentence |
 | Vocabulary review | Words from the student's own list | 6 plus a row 0 example | One part per worksheet, before the final write task. Rotate the type: gap-fill with a word bank, match word to meaning (type the letter), type the right form of the word, complete a phrase. Reuse the worksheet's grammar where possible |
@@ -152,15 +152,16 @@ Run these before exporting:
 1. Every item has exactly one correct answer, or is labeled open. Test tense and article items for a second acceptable answer.
 2. No wrong option in a choice or word bank can also be correct.
 3. The worksheet has one point: the title, rule, table, examples, watch out items, and every activity are about the same thing. Read the focus box in order and check the table and examples match the rule.
-4. The focus and watch out boxes fit one page together: one rule, one table, exactly 4 examples, a 3-line dialogue, and exactly 2 "Don't use: ... Use: ..." items, each with a brief Why that gives the reason.
+4. The focus and watch out boxes fit one page together: one rule, one table, exactly 4 examples, a 3-line dialogue, and exactly 2 "Don't use: ... Use: ..." items, each with a brief Why that gives the reason. Measure it, do not judge it: after export, render page 1 and check that the Watch out box ends above about 85% of the page height. If nothing can render it, build with at least 15% slack and say the layout was not verified. Re-render and re-measure after every later edit to a focus or watch out box.
 5. The focus box is clear and true: nothing is stated as always true when it has exceptions, every form has a stated condition for when to use it, the box has the same name on every worksheet, each definition and rule on its own line, no vague labels, every term defined, full-sentence tables, every subject in verb tables, examples labeled when the table has no sentences.
 6. The focus table is used in at least two activities, and no activity asks the student to write out forms from a list.
 7. No item repeats a sentence from the focus box or dialogue, or copies an error sentence from the student's own speech. Counts of mistakes and gaps are stated.
-8. Questions and writing prompts are about the student's real life, specific, in the right time frame, and make sense for how that life runs. Example sentences use the student's world.
+8. Questions and writing prompts are about the student's real life, specific, in the right time frame, and make sense for how that life runs. Example sentences use the student's world. For every "Answer about you" question, write the shortest natural answer: if it needs more than one sentence, rewrite the question.
 9. Instructions are short and clear, and every question names a specific thing.
 10. Every worksheet has one vocabulary review part (unless the tutor opted out) with words from the student's list, a row 0 example, and an activity type that differs from the other worksheets.
 11. Every answer table has a `Your answer` last column and a row 0 example, no gap has a number inside it, and every writing task has a `:::write` box.
 12. No hit for tutor, teacher, instructor, or student, and none for circle, underline, cross out, tick, or draw, in student-facing text.
 13. No em dashes. Dark text on light fills; white text only on the banner and header rows. Every image path exists.
 14. The pack matches the approved plan: count, order, titles.
-15. If no renderer is available, say the layout was not visually checked.
+15. Walk through the rule as the student would. Apply it step by step to each of the 4 examples and to at least 3 items from the activities. If any step is not visible in the box, or the box gives a different answer from the answer key, rewrite the box.
+16. If no renderer is available, say the layout was not visually checked.

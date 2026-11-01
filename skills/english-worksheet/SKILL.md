@@ -24,7 +24,7 @@ Ask how the tutor wants to build it, offering these as options:
 - **Answer interview questions**.
 - **Both**: ingest first, then interview only for the gaps.
 
-**Ingesting.** Read every file fully, then follow `references/student-profile.md` ("Ingesting data") to extract: profile fields, recurring error patterns with quoted evidence, strengths, vocabulary and grammar already taught, and the student's own stated goals and weaknesses. Show the extracted profile in one compact block, then ask the tutor to confirm or correct it. Interview only for missing fields.
+**Ingesting.** Read every file fully, then follow `references/student-profile.md` ("Ingesting data") to extract: profile fields, recurring error patterns with quoted evidence, strengths, vocabulary and grammar already taught, and the student's own stated goals and weaknesses. Show the extracted profile in one compact block, then ask the tutor to confirm or correct it. The block must include a vocabulary line that names the source and its size, for example "Vocabulary log: olena.md, about 150 items, last taught 10/25", so the tutor can see the full log is the source and not only recent words. Interview only for missing fields.
 
 **Interviewing.** Offer a **detailed** interview (one question at a time, the default) or a **light** one (four bundled prompts). Use the question set in `references/student-profile.md` ("Interview"). The most important answer is the focus areas: what this student keeps getting wrong, in the tutor's own words. If the tutor cannot say, offer to look at a sample of the student's writing or speech and analyze it.
 
@@ -81,7 +81,7 @@ Write the whole pack as one markdown file following `references/exercise-types.m
 **Look**
 - Blue is the main color of every worksheet. Other elements use other light colors (yellow word banks, soft red Watch out boxes, green examples). Keep fills light so typed text is readable. Emoji icons in part headings are fine. Use an image only when a real file exists; never invent a path.
 
-Before building, read every focus box and instruction as the student would, and rewrite anything vague. Then scan the student-facing text for the words *tutor*, *teacher*, *instructor*, and *student* (case-insensitive), and for *circle*, *underline*, *cross out*, *tick*, and *draw*, and rewrite every hit. Do this every time.
+Before building, read every focus box and instruction as the student would, and rewrite anything vague. Then scan the student-facing text for the words *tutor*, *teacher*, *instructor*, and *student* (case-insensitive), and for *circle*, *underline*, *cross out*, *tick*, and *draw*, and rewrite every hit. Do this every time. Then run the walk-through check and the measured page-budget check from Quality checks in `references/exercise-types.md`, and write down the steps for at least one item per part. A box that tells the student to do something must show it done in its examples.
 
 ## Step 4: Build the files
 
