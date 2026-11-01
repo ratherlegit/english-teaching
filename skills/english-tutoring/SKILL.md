@@ -15,7 +15,7 @@ Before interviewing anyone, check whether the tutor is naming a student you alre
 
 **Records live outside the skill's own folder, at `~/eng-teaching-records/`, not inside `~/.claude/skills/english-tutoring/`.** This is deliberate: a student's profile, path, and vocab history are personal data that must survive skill updates, reinstalls, or repackaging — they must never be at risk of being wiped out along with the skill's own files. Create `~/eng-teaching-records/` if it doesn't exist yet.
 
-- **If a record exists**: skip Step 1 entirely — do not re-run the interview. Load the student's profile, learning path (if any), and vocab log straight from that file. Ask only a brief check-in: whether anything's changed (interests, exclusions, session length, etc.). If the record has no English variety, treat it as American without asking.
+- **If a record exists**: skip Step 1 entirely — do not re-run the interview. Load the student's profile, learning path (if any), and vocab log straight from that file. **Also load the most recent `## Analysis` section if there is one** (written by the `english-analysis` skill from a recorded lesson) and use it as described in "Using the student's Analysis" in Step 4. Ask only a brief check-in: whether anything's changed (interests, exclusions, session length, etc.). If the record has no English variety, treat it as American without asking.
   - **If there's an active learning path**: remind the tutor what's next (the next "Not yet delivered" row: lesson name, theme, grammar point) and confirm that's still what they want before generating it — don't just assume the path is unchanged. Give them the chance to request something different for this lesson (a different theme, a specific activity, skip ahead, etc.) instead of only offering yes/no.
   - **If there's no learning path** (the student has only ever had one-off lessons): offer to design one now, but make clear it's optional — a tutor who just wants another standalone lesson shouldn't feel pushed into planning a whole path. If they decline or don't respond to the offer, proceed with a single lesson as normal.
   - Then go straight to Step 3/4 to build that lesson (or Step 2 first, if a new path was just approved).
@@ -117,6 +117,29 @@ Before drafting, if not already answered for this student, ask:
 
 These only need answering once — for a single-lesson request, ask them right away as part of getting into Step 4; for a path, ask once before generating Lesson 1, then reuse the same answers for later lessons unless the tutor wants to change something for a specific one.
 
+### Vocabulary selection (before anything else is drafted)
+Fresh Vocabulary is chosen **first**, as soon as the lesson's theme is known and the lesson-specific questions above are answered. Do not write the warm-up, grammar focus, activities, or any other part of the plan until the tutor has picked the words. Everything else is built around the words they keep, so a word they cut never ends up in the lesson material.
+
+1. **Show a candidate list of about 20** words or phrases (a default, not a fixed number; use another size if the tutor asks). Apply every rule in "Fresh Vocabulary section" below: theme and interests, one CEFR level up, the vocab constraint, nothing already in the Vocabulary Log. Write each candidate in the full item format (`word – definition`, then `Example:` with a collocation-rich sentence written for this student) so the tutor can judge the word and its example together. Nothing else from the lesson is shown at this stage.
+2. **The tutor narrows it**, by saying which to keep or cut. The target is usually 7-10 words (also a default the tutor can override). If they ask for swaps or more candidates, supply them and show the updated list. Don't move on until they confirm the final set.
+3. **Only then draft the lesson.** The kept words, with the exact definitions and examples the tutor approved, become the Fresh Vocabulary section as written. Example sentences, dialogues, Review of Prior Content, and activities may use only the kept words as the lesson's new vocabulary. Never work in a cut candidate.
+   - **Every kept word must appear at least twice in the lesson, beyond its own Fresh Vocabulary entry** (in the Grammar Focus examples, a dialogue, Review of Prior Content, an activity, the wrap-up, or the home assignment). **At least one of those appearances must be outside the Production activities**, because activities are options the tutor may skip live. Before delivering, count the appearances of each kept word and add the missing ones. Use the word naturally in a sentence or task, not as a list of words to repeat
+4. **Record only the kept words** in the Vocabulary Log (see "Student Record File"). Cut candidates are not logged, so they stay eligible for later lessons.
+
+When generating a lesson from a learning path, this step still comes first: take the theme from that lesson's row, then run it before drafting.
+
+### Using the student's Analysis
+If the record has an `## Analysis` section, it shows what the student actually does in a recorded lesson. Use the most recent one to aim the lesson. It is an estimate from a recording, not a test, so use it to choose what to practice, never to change the lesson level (only the Profile level does that) and never to show the student a score. Use these parts:
+- **Grammar errors, in priority order, with quoted examples.** Take the highest-priority error or two that fit this lesson's grammar point and theme, and don't add a new grammar point to fit one in (Step 5 still allows only one). Work it in three places: the Grammar Focus examples (show the correct form in contrast), one activity prompt that invites the structure, and the wrap-up task. If the lesson's grammar focus is **none**, aim for the error through the activity prompts and wrap-up only
+- **Quoted errors as correction material.** Turn the quoted errors into "Fix the mistake in each sentence" items, adapted to the lesson's theme and vocabulary. Present them as plain sentences, never as "you said" or anything that points at the student
+- **Vocabulary recall (solid, partial, re-taught).** In Review of Prior Content, choose words marked partial or re-taught first. Skip words marked solid until later. This replaces the plain rotation whenever recall data exists
+- **Context for warm-ups.** Use what the student mentioned (family, work, interests, plans) for follow-up questions in the warm-up, alongside the usual variety rules
+- **Teaching notes.** Follow them, since they already respect the profile's tutor preferences. If they conflict with the profile or the tutor's answers this session, the tutor's current answers win
+- **Pronunciation targets** are low confidence. Mention them only in a Teacher's Note, never in student-facing text
+- **Fluency and listening findings** can steer activity choice (for example, more listening if listening was weak) within the weights and no-repeat rules in "Choosing the activities"
+
+If Teacher's Notes are on, add a short note under any stage that was shaped by a finding, saying which finding drove it. If there is no Analysis section yet, fall back to the error patterns from `references/student-interview.md` and the student's location.
+
 **Don't open the plan with a student-details or framework header** (e.g. a block restating the student's name/level/interests, or naming the PPP/TBL/ESA framework being used) — that's internal planning context, not something the tutor needs printed at the top of a document they'll use in front of a student. Start straight in with the lesson content.
 
 Unless the user specifies their own format, include, **in this order**:
@@ -127,7 +150,7 @@ Unless the user specifies their own format, include, **in this order**:
 5. **Grammar Focus** — scaled to the depth the tutor chose (see "Grammar Focus section" below). **Strong**: presentation/input, controlled practice, and freer practice per the chosen framework (PPP's "Presentation" stage; use whatever this stage is called under a different framework — see `references/lesson-frameworks.md`), and the target grammar is built into the activities too. **Light**: a brief overview only (a short plain-language rule, a formula if there is one, 2-3 examples), with the target grammar woven into the activities' prompts rather than drilled separately. **None**: omit this section entirely and build the lesson around topical activities; don't sneak a grammar explanation back in
 6. **Production/application activities** — students use the language with some autonomy, built from **several** activities per the chosen selection method (see below), not just one. This isn't a wrapping "Production" heading in the document itself, just the label for this stage in your own planning — go straight from Grammar Focus into the first activity's own heading (see "Choosing the activities" below)
 7. **Wrap-up / assessment** — quick check of the objective (not necessarily formal testing)
-8. **Home Assignment** — included by default; omit only if the tutor opted out during the interview
+8. **Home Assignment** — included by default; omit only if the tutor opted out during the interview. **It is the last student-facing section.** Don't add an "Extra options", "Extension", "Bonus", or "If you have time" section after it (or anywhere else); the plan contains only the sections in this list
 9. **Materials needed**
 10. **Time Summary** — a single section, not per-stage headings (see below)
 11. **Teacher's Notes** (if not turned off — see below) — either woven into the stages that have one, or collected in one closing section, per the tutor's preference
@@ -152,7 +175,7 @@ Included by default. Class time is for speaking, so **writing tasks belong here*
 
 ### Fresh Vocabulary section
 Every lesson gets a standalone new-vocabulary section, not just vocab folded into the presentation stage:
-- **Don't state or fix a number of items anywhere** (not in the heading, not in an intro line, not in the Time Summary, not in the objective). The tutor picks which words to teach and the number varies lesson to lesson, so offer a generous, varied pool of good candidates and let the tutor choose. There is no minimum unless the tutor gives one. Tie the words to the lesson's theme and therefore to the student's stated interests — every example sentence should read as if written for this specific student, not generic
+- **The tutor chooses the words before the lesson is written** (see "Vocabulary selection" above). The section contains exactly the words they kept, with the definitions and examples they approved. **Don't state or fix a number of items anywhere in the plan** (not in the heading, not in an intro line, not in the Time Summary, not in the objective), since the count varies lesson to lesson. Tie the words to the lesson's theme and therefore to the student's stated interests — every example sentence should read as if written for this specific student, not generic
 - **Pitch vocab one CEFR level above the student's current level** (A2 student → A2/B1-boundary or B1 vocab; B1 → B2; B2 → C1; C1 → C2; a C2 student stays at C2 but pushes toward rarer/more nuanced items). This is a deliberate stretch to grow the student, not a comprehension check — use `references/cefr-levels.md` to judge what "one level up" looks like in practice
 - Apply the vocab constraint from the interview: if phrasal verbs were requested, every item is a phrasal verb; if a part of speech was requested, every item matches it; otherwise mix naturally around the topic
 - Make the word usable, not just recognizable: choose natural, collocation-rich example sentences (e.g. for "address" as a verb, an example like "We need to address the noise problem."). The collocations live in the Example line, never in parentheses in the definition
@@ -171,6 +194,8 @@ Applies to the **strong** and **light** depths (skip the whole section for **non
 - **A formula, if the structure has one, kept as short as possible** (e.g. *be* + past participle; *have/has* + past participle; *If* + past simple, *would* + base verb). Don't qualify it with parentheticals like "(in the correct tense)" or explain implementation details in the same line, that's implied and the tutor can explain it live if the student needs it. Skip the formula entirely for grammar points that aren't formulaic (e.g. article usage, word order preferences).
 - **Several thematic examples**, tied to the lesson's topic and the student's interests, not generic textbook sentences. Two examples is too thin, aim for enough that the pattern is clearly visible.
 - **If the grammar point has multiple distinct uses or forms, show examples for each one separately**, don't let one use stand in for all of them. For example: passive voice used across different tenses (present simple, past simple, present perfect, modal) if the lesson touches more than one; "used to" for past habits vs. "be used to" for familiarity; reported speech for statements vs. questions vs. commands. If the lesson is deliberately scoped to just one use or one tense, say so briefly so it's clear that's intentional, not an oversight.
+
+**When the explanation defines terms** (e.g. *subject*, *past participle*, *auxiliary verb*, *main clause*, or the parts of a formula), **start each term on its own line** rather than running several definitions together in one paragraph or sentence. Bold the term, then its short definition on the same line (e.g. `**Past participle:** the third form of the verb, like *eaten* or *gone*`), with the next term on the line below. Write them as bulleted lines so they stay separate both in chat and in the exported `.docx`. This is for readability: a student scanning the page should find each term at a glance.
 
 Keep the whole presentation tight and skimmable. Don't add asides about edge cases or usage nuance (e.g. when to drop an agent/actor from a sentence, formality register, etc.) into the main explanation, formula, or examples, that kind of detail belongs in a Teacher's Note if it's worth flagging at all, not woven into the student-facing explanation where it disrupts the flow.
 
@@ -204,6 +229,7 @@ Maintain one file per student at `~/eng-teaching-records/<student-name-slug>.md`
 
 ## Profile
 - Pronouns: ...
+- Tutor name: ... (optional, only if the tutor has said it; used for dialogue characters)
 - Level: ...
 - Location: ...
 - Interests: ...
@@ -240,7 +266,8 @@ Maintain one file per student at `~/eng-teaching-records/<student-name-slug>.md`
 
 - **Create/update the Profile** at the end of Step 1 (new student) or whenever the tutor changes something during a returning-student check-in (Step 0)
 - **Create/update the Learning Path table** at the end of Step 2, and flip a lesson's Status to "Delivered <date>" immediately after generating it — this is what Step 0 reads to know which lesson is next, without asking the tutor
-- **Before** drafting Fresh Vocabulary for any lesson: read the Vocabulary Log section to see everything already taught to this student
+- **Before** showing the candidate list for any lesson: read the Vocabulary Log section to see everything already taught to this student
+- Log vocabulary only **after** the tutor has chosen the final words. The log gets the kept words, never the candidate pool or cut words
 - **After** finalizing a lesson's activities: append the chosen Production activities to the Activity Log with the date
 - **Before** choosing activities: read the Activity Log to apply the no-repeat rule. If the record has no Activity Log yet (an older record), use the Activity Type(s) column of the Learning Path table for lessons already marked Delivered as the history instead, so repeats are avoided from the next lesson
 - **After** finalizing a lesson: append the new vocab items, the grammar point, and the home assignment under a new dated heading
@@ -262,6 +289,13 @@ Present each option under its own heading named after the activity itself (e.g. 
 
 **Write every student-facing line addressed to the student, in the second person** (e.g. "Read the dialogue below and discuss...", "You will hear...", "You will see...", "You will be given...", "Rank these options from most to least important..."), not as stage directions to the tutor (e.g. not "Have the student read the dialogue and discuss..."). This applies throughout the plan (Warm Up Conversation questions, Grammar Focus practice, every Production activity) and above all in the Student Handout.
 
+**Role plays and role cards (Role Play, Phone Call Simulation, and any activity with a card of bulleted info per person):**
+- **Never tell the student to keep their card private or secret** ("don't show your partner", "keep this to yourself"). It's only the student and the tutor, and the tutor has already seen both cards. Privacy instructions belong in `english-classroom` activities, where students work with each other
+- **Give the student a role or job, not a name.** Write "You are a customer returning a jacket" or "You are a hotel receptionist", not "You are Sarah, a customer...". Only give the student a name if they are playing a specific character who actually has a different name (a famous person, a character from a story).
+- **Never address or mention the tutor on a card.** No "You are..." for the other role, no "Tutor's card", no "Teacher plays...". In a one-on-one session it's understood that the tutor plays the other role. Label the other card by the character alone, in the third person, e.g. "**Mr. Patel, the store manager**" followed by the bulleted info. Since the tutor is usually playing a character, a name is fine on that card. Only the student's card uses "You are..."
+
+**Dialogues (any written dialogue or conversation the student reads or practices, including the model dialogue in Presentation) always include the student as one of the speakers, under their own name from the record** (e.g. "Maria:"). This is different from a role play card, where the student gets a role rather than a name. The other speaker is the tutor's counterpart: give them the tutor's own name if the record has one (Profile, "Tutor name"), and otherwise a character with a different name that fits the scene. If the tutor mentions their name at any point, save it to the Profile for next time; don't add an interview question for it. Never label a speaker "Tutor" or "Teacher". Dialogues with three or more speakers still include the student, and the tutor takes the other parts.
+
 **Hard rule: no student-facing text may mention the tutor, teacher, instructor, or "the student" in any form.** That includes "your tutor", "your teacher", "the tutor", "the teacher", "your instructor", "your coach", "the student", and "the tutor will...". The tutor pastes this material into the lesson and is sitting right next to the student, so "your tutor will show you a photo" is awkward, and it makes a lesson built for this one learner read like generic worksheet text. Rewrite so nobody is named: "you will be given a photo", "you will hear a short story", "listen to the story", "look at the photo". If a human has to do something, use "we" or an imperative ("Let's role-play this dialogue", "Take turns reading"). Never say "ask your tutor"; say "ask me" only if the line truly needs a person, otherwise rephrase. Tutor-only content (Teacher's Notes, Materials needed, Time Summary) is the only place the tutor is mentioned, and it never appears in the handout.
 
 **Before delivering the main plan or the handout, scan the student-facing text for the words tutor, teacher, instructor, and student (case-insensitive) and rewrite every hit.** Do this check every time, not just when you remember to.
@@ -275,8 +309,8 @@ Give the student one concrete, specific task or question to do right now, in the
 
 ## Step 5: Differentiation and common pitfalls
 
-- If the student's level assessment feels uncertain, or they're clearly having a stronger/weaker day than expected, keep one extension idea and one simplification in your back pocket for the main activity rather than rewriting the whole plan mid-lesson
-- Avoid overloading a single lesson with more than one new grammar point or a pile of unrelated new vocabulary (the tutor trims the vocab pool as needed)
+- If the student's level assessment feels uncertain, or they're clearly having a stronger/weaker day than expected, keep one extension idea and one simplification in your back pocket for the main activity rather than rewriting the whole plan mid-lesson. "Back pocket" means in your head: don't write them into the plan as an "Extra options", "Extensions", "Bonus", or similar section
+- Avoid overloading a single lesson with more than one new grammar point or a pile of unrelated new vocabulary (the tutor trims the candidate list before the lesson is written)
 - For exam-prep lessons, tie every activity back to the specific exam skill being tested (e.g. IELTS Task 2 essay structure, not just "writing practice")
 
 ## Output format
