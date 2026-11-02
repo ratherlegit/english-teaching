@@ -472,7 +472,9 @@ def add_table(doc, header_cells, rows, theme):
                 shade_cell(row.cells[-1], theme["answer"])
             set_row_min_height(row, 0.4)
         cols = len(header_cells)
-        if cols == 3 and re.sub(r"[*_]", "", header_cells[-1]).strip().lower() == "your sentence":
+        if cols == 2 and re.sub(r"[*_]", "", header_cells[-1]).strip().lower() == "your sentence":
+            widths = [0.5, 6.0]
+        elif cols == 3 and re.sub(r"[*_]", "", header_cells[-1]).strip().lower() == "your sentence":
             widths = [0.5, 2.2, 3.8]  # the sentence with the gap is the tinted, typed-in cell
         elif cols == 2 and header_cells[0].strip() == "#":
             widths = [0.6, 3.0]

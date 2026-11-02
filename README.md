@@ -62,6 +62,7 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 - Uses the latest speaking Analysis in the student's record as its main evidence: the error patterns become the focus areas, and words marked partial or re-taught decide the vocabulary review
 - Plans each Grammar Focus box before drafting it: one topic, steps for a procedure or key points for a choice between forms, every term explained, everything mentioned shown in an example, and the table introducing nothing new
 - Checks its own work before export: the focus and Watch out boxes are measured to fit page 1, the steps are walked through on real items, and a learner-eye review (ideally by a fresh subagent that sees only the box and instructions) catches unexplained terms and unclear lines
+- Chooses focus points that are worth the learner's time: reliable evidence (machine transcripts invent and hide errors), not too basic for the level, and explained by the learner's first language where possible
 - Keeps tasks short and friendly: "Answer about you" questions are neutral and need one short sentence, messages to correct come already inside the answer box, and requirements are bullets
 - Reads the student's tutoring record but never changes it
 
