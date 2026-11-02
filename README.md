@@ -60,7 +60,9 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 - Includes a vocabulary review part of 6 words with a worked example, taken from the student's own list
 - Exports typing-friendly `.docx` files (one combined file or one per worksheet) with the answer key as a separate file the student never sees
 - Uses the latest speaking Analysis in the student's record as its main evidence: the error patterns become the focus areas, and words marked partial or re-taught decide the vocabulary review
-- Checks its own work before export: examples must show each step the rule asks for, the focus and Watch out boxes are measured to fit one page, and "Answer about you" questions must have a natural one-sentence answer
+- Plans each Grammar Focus box before drafting it: one topic, steps for a procedure or key points for a choice between forms, every term explained, everything mentioned shown in an example, and the table introducing nothing new
+- Checks its own work before export: the focus and Watch out boxes are measured to fit page 1, the steps are walked through on real items, and a learner-eye review (ideally by a fresh subagent that sees only the box and instructions) catches unexplained terms and unclear lines
+- Keeps tasks short and friendly: "Answer about you" questions are neutral and need one short sentence, messages to correct come already inside the answer box, and requirements are bullets
 - Reads the student's tutoring record but never changes it
 
 **Why it helps**
