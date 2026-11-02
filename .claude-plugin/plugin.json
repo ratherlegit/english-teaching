@@ -1,7 +1,7 @@
 {
   "name": "english-teaching",
   "description": "ESL/EFL lesson planning for one-on-one tutors and group classes, plus personalized homework worksheets and recorded-lesson speaking analysis: interviews, multi-lesson learning paths, personalized vocabulary, weighted activities, and per-student and per-class memory.",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "author": { "name": "Zachary Rosen" },
   "homepage": "https://github.com/ratherlegit/english-teaching",
   "repository": "https://github.com/ratherlegit/english-teaching",

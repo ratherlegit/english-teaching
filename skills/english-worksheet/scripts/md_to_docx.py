@@ -26,9 +26,10 @@ Markdown supported:
     :::box ... :::        the focus box: tinted, with an accent border and an accent title
     :::box bank ... :::   a yellow word bank
     :::box watch ... :::  a soft red "watch out" box
-    :::write N ... :::    an empty tinted answer box about N lines tall; the student clicks
-                          inside and types, and the box grows as they type
-    A table gets a blue header row. If its last column is headed "Your answer",
+    :::write N ... :::    a tinted answer box about N lines tall; the student clicks
+                          inside and types, and the box grows as they type. Text between the
+                          fences (a message to correct) is already inside the box.
+    A table gets a blue header row. If its last column is headed "Your answer" (or "Your sentence", when the answer is typed into the sentence itself),
     the answer cells are tinted light blue with a minimum height, so the student types next to
     the item without touching the layout. A row numbered 0 is the worked example: its answer
     cell is light green and already filled in. Column widths are set automatically.
@@ -64,7 +65,7 @@ WHITE = RGBColor(255, 255, 255)
 
 WORKSHEET_MARKER = "<!-- worksheet -->"
 PAGEBREAK_MARKER = "<!-- pagebreak -->"
-ANSWER_HEADERS = {"your answer", "answer"}
+ANSWER_HEADERS = {"your answer", "answer", "your sentence"}
 INLINE_PATTERN = re.compile(r"(\*\*\*.+?\*\*\*|\*\*.+?\*\*|\*.+?\*)")
 LINK_PATTERN = re.compile(r"(?<!!)\[([^\]]+)\]\([^)]+\)")  # image syntax is left alone
 IMAGE_PATTERN = re.compile(r"^!\[(.*?)\]\((.+?)\)(?:\{([\d.]+)\})?$")
@@ -403,7 +404,7 @@ def add_box(doc, box_lines, theme, kind="focus"):
         if first_text and is_label:
             style_runs(p, color=rgb(title), size=12)
         elif is_label:
-            p.paragraph_format.space_before = Pt(12)  # a section label ("Examples", "In real use") needs room above
+            p.paragraph_format.space_before = Pt(12)  # a section label ("Examples", "How to do it") needs room above
             p.paragraph_format.space_after = Pt(4)
         first_text = False
         k += 1
@@ -429,12 +430,21 @@ def add_banner(doc, text, theme):
     doc.add_paragraph().paragraph_format.space_after = Pt(0)
 
 
-def add_write_box(doc, lines_tall, theme):
-    """An empty tinted one-cell table the student types into."""
+def add_write_box(doc, lines_tall, theme, body=None):
+    """A tinted one-cell table the student types into. Text inside the fence
+    (for example a message to correct) is placed in the box already."""
     table = doc.add_table(rows=1, cols=1)
     style_table(table, theme["dark"], 6)
     cell = table.rows[0].cells[0]
     shade_cell(cell, theme["answer"])
+    filled = [line.strip() for line in (body or [])]
+    while filled and not filled[0]:
+        filled.pop(0)
+    while filled and not filled[-1]:
+        filled.pop()
+    for k, text in enumerate(filled):  # blank lines stay as empty paragraphs (letter layout)
+        p = cell.paragraphs[0] if k == 0 else cell.add_paragraph()
+        add_inline_runs(p, text)
     set_column_widths(table, [6.5])
     set_row_min_height(table.rows[0], max(0.5, lines_tall * 0.27))
     doc.add_paragraph()
@@ -462,10 +472,12 @@ def add_table(doc, header_cells, rows, theme):
                 shade_cell(row.cells[-1], theme["answer"])
             set_row_min_height(row, 0.4)
         cols = len(header_cells)
-        if cols == 2 and header_cells[0].strip() == "#":
+        if cols == 3 and re.sub(r"[*_]", "", header_cells[-1]).strip().lower() == "your sentence":
+            widths = [0.5, 2.2, 3.8]  # the sentence with the gap is the tinted, typed-in cell
+        elif cols == 2 and header_cells[0].strip() == "#":
             widths = [0.6, 3.0]
         else:
-            widths = {2: [3.6, 2.9], 3: [0.5, 3.3, 2.7]}.get(cols, [6.5 / cols] * cols)
+            widths = {2: [3.6, 2.9], 3: [0.5, 3.3, 2.7], 4: [0.5, 1.9, 2.6, 1.5]}.get(cols, [6.5 / cols] * cols)
         set_column_widths(table, widths)
     else:
         set_column_widths(table, proportional_widths([header_cells] + rows, 6.5))
@@ -559,7 +571,7 @@ def convert_lines(lines, output_path, base_dir="."):
             if kind_word == "box":
                 add_box(doc, body, theme, arg if arg in ("bank", "watch") else "focus")
             else:
-                add_write_box(doc, int(arg) if arg and arg.isdigit() else 4, theme)
+                add_write_box(doc, int(arg) if arg and arg.isdigit() else 4, theme, body)
             wrote_content = True
             current_list_num_id = None
             continue

@@ -6,7 +6,7 @@ Pick the skill that matches the request and follow its instructions in full:
 
 - **One student**: `skills/english-tutoring/SKILL.md`. Records live in `~/eng-teaching-records/`.
 - **A class of several students**: `skills/english-classroom/SKILL.md`. Records live in `~/eng-teaching-records/classes/`. Never read or modify the one-on-one files from this skill.
-- **Homework worksheets for one student**: `skills/english-worksheet/SKILL.md`. Records live in `~/eng-teaching-records/worksheets/`. It may read the student's english-tutoring record, including its latest `## Analysis` section, never write to it.
+- **Homework worksheets for one student**: `skills/english-worksheet/SKILL.md`. Records live in `~/eng-teaching-records/worksheets/`. It may read the student's english-tutoring record, including its latest `## Analysis` section, never write to it. Before drafting each Grammar Focus box it writes a 13-line spec, and before export it runs a measured page check, a walk-through, and a learner-eye review (a fresh subagent given only the box and instructions, if the harness has one).
 - **A recorded lesson to transcribe and score**: `skills/english-analysis/SKILL.md`. Writes transcripts to `~/eng-teaching-records/transcripts/` appends an Analysis section to the student's english-tutoring record, and builds tutor-only one-page summaries in `~/eng-teaching-records/one-pagers/`. Needs Python 3 with `faster-whisper`, `python-docx` and `ffmpeg`, so it works only in a harness with a shell.
 
 Each skill reads its own `references/` folder from this repo. Record folders live outside the repo on purpose so they survive updates (create them if missing).
