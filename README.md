@@ -37,7 +37,9 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 **The problem.** In a class, one lesson has to work for students at different levels with different backgrounds. Stronger students finish early and weaker ones get lost, and there is no single person whose interests you can build around.
 
 **What it does**
-- Interviews you about the class and keeps a class record (profile, optional roster, learning path, activity and vocabulary logs)
+- Interviews you about the class and keeps a class record (profile, optional roster, learning path, activity, warm-up and vocabulary logs)
+- Reads the same teacher profile (`_tutor.md`) as english-tutoring, so your name, vocab counts and preferred outputs carry over
+- Shows about 20 candidate words first, lets you narrow them, and builds the lesson around the ones you keep, each used at least twice
 - Plans around themes the whole class shares instead of one student's interests
 - Gives every activity three versions: Support (scaffolds such as sentence frames or a word bank), Core, and Stretch (an extra constraint or longer output)
 - Suggests groupings for each activity, naming pairs and groups when you have a roster
@@ -82,6 +84,7 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 - Measures talk-time share, longest turns and filler counts
 - Scores speaking with a CEFR level (with half-steps such as B1+) and a score out of 100 built from fluency, vocabulary and grammar, each out of 25, using calibration anchors so scores stay consistent
 - Checks which earlier vocabulary the student recalled, needed a hint for, or had to be re-taught
+- Tags every grammar and word-choice error with one of 15 codes and keeps an Error Tracker in the student's record: errors per 1,000 words for each lesson, and a status for each code (new, improving, fading, rising, stuck). Counting is done by a script, so trends are comparable from lesson to lesson
 - Saves the transcript to `~/eng-teaching-records/transcripts/` and adds an Analysis section to the student's tutoring record, with strengths, error patterns in priority order and teaching notes that follow your preferences
 - Builds a tutor-only one-page summary per student as an editable `.docx` (level, score, strengths, top three things to work on with quoted examples, vocabulary check, talk time, next-lesson focus), on request at any time from the saved analysis. A length limit keeps it to one page
 
@@ -89,11 +92,14 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 - The next lesson plan, and the homework from english-worksheet, start from what the student really said
 - You can see progress between recordings and how much of the talking the student does
 - A one-page summary you can read in a minute before planning, instead of rereading a long record
+- english-tutoring and english-worksheet pick the next grammar point from the tracker, and switch to a different method when a code is stuck
+- Student sentences stay in your private record: lessons and worksheets get new sentences with the same kind of error
 - Level changes are your decision: the skill reports whether a recording supports the current level and leaves the profile alone until you agree
 
 ## Shared by all four skills
 
 - American English by default, British on request
+- Word banks and matching columns are never in the same order as the items
 - Editable `.docx` exports: black text only for lesson plans and handouts (your private notes are removed from the student handout), colorful and typing-friendly for worksheets
 - Per-student and per-class records kept outside the repo, so they survive updates
 - No em dashes in anything the skills write, so the text reads like a person wrote it

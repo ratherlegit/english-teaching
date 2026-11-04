@@ -1,6 +1,6 @@
 ---
 name: english-analysis
-description: "Transcribe a recorded one-on-one English lesson, label tutor vs. student, and score the student's speaking (CEFR level plus 1-100) into their record for later lesson planning. Use when the tutor shares lesson audio or video, or asks for a transcript, speaker labels, a speaking analysis, or a one-pager for a student. Steps and tools: (1) unpack and join audio: Bash, scripts/prepare_audio.py (ffmpeg); (2) transcribe locally: scripts/transcribe.py (faster-whisper, run in background); (3) check the transcript: Read; (4) label speakers: Write; (5) measure talk time and fillers: scripts/talk_stats.py; (6) score and analyze: Read the student record and references/scoring-rubric.md; (7) save analysis and update the record: Bash and Edit in ~/eng-teaching-records/; (8) one-page student summary (also on request from the saved analysis, no recording needed): Write plus scripts/one_pager_docx.py (python-docx)."
+description: "Transcribe a recorded one-on-one English lesson, label tutor vs. student, and score the student's speaking (CEFR level plus 1-100) into their record for later lesson planning. Use when the tutor shares lesson audio or video, or asks for a transcript, speaker labels, a speaking analysis, an error tracker, or a one-pager for a student. Steps and tools: (1) unpack and join audio: Bash, scripts/prepare_audio.py; (2) transcribe locally: scripts/transcribe.py (faster-whisper); (3) check the transcript: Read; (4) label speakers: Write; (5) talk time and fillers: scripts/talk_stats.py; (6) score and analyze, tag errors by code: Read, Write; (7) save to ~/eng-teaching-records/ and update the Error Tracker: Edit, scripts/error_ledger.py; (8) one-page summary (also on request, no recording needed): scripts/one_pager_docx.py."
 ---
 
 # English Analysis
@@ -18,8 +18,8 @@ Copy this checklist and tick it off:
 - [ ] 4. Check the raw transcript
 - [ ] 5. Label speakers, save transcript
 - [ ] 6. Run talk_stats
-- [ ] 7. Score and analyze
-- [ ] 8. Save to the record, report
+- [ ] 7. Score, analyze, tag errors
+- [ ] 8. Save to the record, update the Error Tracker, report
 - [ ] 9. Build the one-pager
 ```
 
@@ -54,10 +54,18 @@ Give a CEFR level with half-steps (for example B1+) and a score out of 100 built
 
 For vocabulary recall, take every earlier-lesson word the tutor reviewed and look each up in the Vocabulary Log. Mark it solid, partial or re-taught, with the date it was first logged. Look for the pattern (for example, words tied to the student's work stick, abstract ones fade).
 
+**Tag the errors.** Follow `references/error-codes.md`: read the whole transcript, tag every student grammar and word-choice error with a code, and write `~/eng-teaching-records/transcripts/<slug>-<date>-errors.tsv`. Rank the grammar errors in the analysis from the tracker (step 8), not from memory, and say what changed since the last session.
+
 Respect the profile's tutor preferences in the teaching notes. If the tutor wants light grammar and no grammar checks, recommend recasts, retells and word-choice pairs rather than drills.
 
 ### 8. Save and report (Bash or Edit, then reply)
-Back up the record, then append the Analysis section and update the Learning Path and Vocabulary Log as described in `references/record-format.md`. Do not change the profile level without the tutor's agreement. Verify the edits by grepping the new lines.
+Back up the record, then run the tracker:
+
+`python3 -I scripts/error_ledger.py add <slug> <date> <transcript.md> <StudentName> <errors.tsv> --write`
+
+This stores the session in `error-ledgers/<slug>.json` and rewrites the `## Error Tracker` section of the record (rates per 1,000 student words, status per code, latest examples). Re-running the same date replaces that session, so it is safe to repeat. Read the printed table before writing the Analysis: use its priority order for the grammar bullet and its statuses (stuck, improving, rising) for the teaching notes. With fewer than three sessions the table is provisional; say so.
+
+Then append the Analysis section and update the Learning Path and Vocabulary Log as described in `references/record-format.md`. Do not change the profile level without the tutor's agreement. Verify the edits by grepping the new lines.
 
 Report to the tutor: level and score with the three parts, the top strengths and areas to improve, talk-time share, and the file paths written. State what is uncertain: speaker labels, machine-corrected errors, recording conditions, single-session estimate.
 

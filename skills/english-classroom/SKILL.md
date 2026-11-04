@@ -13,6 +13,8 @@ Records are stored in `~/eng-teaching-records/classes/`, separate from one-on-on
 
 ## Step 0: Check for a returning class
 
+**First, read `~/eng-teaching-records/_tutor.md`** (the Teacher Profile, shared with the english-tutoring skill; see "Teacher Profile" below). It holds the teacher's own name and standing preferences for how lessons are built. If it does not exist yet, run the one-time setup described there, then continue. Do not repeat the setup for a teacher who already has the file.
+
 Before interviewing anyone, check whether the teacher names a class you already have a record for, such as "next lesson for my Tuesday class". List `~/eng-teaching-records/classes/` and look for `<class-slug>.md` (lowercase, hyphens for spaces). If the teacher's wording could match more than one record, ask which. If you cannot list or read the folder, say so and ask the teacher whether this class already has a record. Create `~/eng-teaching-records/classes/` if it does not exist.
 
 Records live outside the skill folder on purpose: the profile, roster, path, and vocab history are personal data that must survive skill updates and reinstalls.
@@ -111,6 +113,9 @@ At the end of Step 1, create `~/eng-teaching-records/classes/<class-slug>.md`:
 ## Activity Log
 - 2026-10-07: Role Play, This or That
 
+## Warm-Up Log
+- 2026-10-07: would-you-rather, favorites round
+
 ## Vocabulary Log
 ### 2026-10-07, Lesson 1: <name>
 - word one
@@ -120,6 +125,33 @@ At the end of Step 1, create `~/eng-teaching-records/classes/<class-slug>.md`:
 ```
 
 The vocab, home assignment, teacher's notes, and handout fields stay blank until Step 4 asks about them.
+
+### Teacher Profile (the teacher's name and standing preferences)
+
+Keep one file for the teacher at `~/eng-teaching-records/_tutor.md`. The same file is used by the english-tutoring skill, so a teacher who also tutors has one profile. The leading underscore keeps it from ever matching a class slug, and it outlives skill updates for the same reason class records do.
+
+**What it is for.** Lessons are built around the class: levels, interests, goal, roster. The Teacher Profile never changes any of that. It supplies the teacher's name (so the teacher's side of dialogues and role plays uses it, not a random character) and how the teacher likes plans shaped (how many words, which outputs). Use it to set format and quantity, never to override what the class needs.
+
+```
+# Tutor Profile
+
+- Name: ... (used for the teacher's side of dialogues and role plays)
+- Vocab candidates: ... (size of the list shown first; default about 20)
+- Vocab final: ... (range the teacher narrows it to; default 6-10 for a class)
+- Vocab constraint or style: ... (for example mixed, phrasal verbs, everyday expressions only)
+- Outputs: student handout yes/no | home assignment yes/no | teacher's notes integrated/end-only/none | .docx export yes/no
+- Activity choice: random / named favorites / ask each time
+- Session length: ... (default if a class has none)
+- Notes: ... (anything else the teacher says about how they like plans built)
+```
+
+The file may also hold lines this skill does not use (for example grammar depth for one-to-one lessons). Leave them as they are.
+
+**Setup (once, when the file does not exist).** Ask in one round, as short free-text prompts: name, then "how long is a usual class, how many vocab candidates do you want to see and how many do you usually keep, and any kind you prefer?", then "which outputs do you usually want: student handout, home assignment, teacher's notes, .docx?". "No preference" is a fine answer; leave that line out rather than inventing a value. Save the file right away.
+
+**Precedence.** The teacher's answer this session beats the class record, which beats the Teacher Profile, which beats the skill's defaults. A one-off "20 words this time" does not rewrite the profile.
+
+**Keeping it current.** When the teacher states a preference about themselves rather than one class ("I always want a handout"), offer once to save it to the Teacher Profile. When it is about one class, save it in that class's record. If an older class record has its own vocab count, home assignment or notes line, it still counts as the class's setting; do not rewrite old records to move those lines.
 
 ## Step 2: Design the class learning path
 
@@ -155,9 +187,9 @@ If the lesson comes from an approved path, use that row's theme, grammar point, 
 
 ### Lesson-specific questions (ask now, not during Step 1)
 
-Before drafting, if not already answered for this class, ask:
+Before drafting, settle each item below in this order: the teacher's answer this session, then the class record, then the Teacher Profile, then the skill default. **Only ask about an item that none of those settle.** Show the values you are assuming in one line (for example "Using your usual setup: handout yes, home assignment yes, notes integrated. Change anything?") so the teacher can override without being quizzed. The items:
 - **Vocab constraint**: phrasal verbs, a part of speech, or no constraint (default: mixed, chosen to fit the topic).
-- **Number of vocab words or phrases** (default 6 to 10).
+- **Vocab candidates and final range** (default: show about 20, keep 6 to 10). See "Vocabulary selection" below.
 - **Home assignment**: include one? (default yes).
 - **Teacher's notes**: integrated (a short note under the relevant stage), end-only (one closing section), or none. Default integrated.
 - **Student handout**: a copy for students without Teacher's Notes, Materials needed, and Time Summary. Default yes.
@@ -181,13 +213,24 @@ Unless the teacher specifies their own format, include in this order:
 12. **Teacher's Notes** (if not turned off)
 13. **Student Handout** (a second copy without Teacher's Notes, Materials needed, and Time Summary, unless the teacher opted out)
 
+### Vocabulary selection (before anything else is drafted)
+
+Fresh Vocabulary is chosen **first**, as soon as the lesson's theme is known and the lesson-specific questions above are settled. Do not write the warm-up, grammar focus, activities or any other part of the plan until the teacher has picked the words. Everything else is built around the words they keep, so a word they cut never ends up in the lesson material.
+
+1. **Show a candidate list of about 20** words or phrases (use the Vocab candidates size from the class record or Teacher Profile, or another size if the teacher asks). Apply every rule in "Fresh Vocabulary" below: theme and the class's shared interests, one CEFR level above the class median, the vocab constraint, nothing already in the Vocabulary Log. Write each candidate in the full item format (`word – definition`, then `Example:` with a collocation-rich sentence written for this class) so the teacher can judge the word and its example together. Nothing else from the lesson is shown at this stage.
+2. **The teacher narrows it**, by saying which to keep or cut. The target is the Vocab final range from the class record or Teacher Profile (default 6 to 10), and the teacher can override it. If they ask for swaps or more candidates, supply them and show the updated list. Do not move on until they confirm the final set.
+3. **Only then draft the lesson.** The kept words, with the exact definitions and examples the teacher approved, become the Fresh Vocabulary section as written. Example sentences, dialogues, Review of Prior Content and activities may use only the kept words as the lesson's new vocabulary. Never work in a cut candidate.
+4. **Record only the kept words** in the Vocabulary Log. Cut candidates are not logged, so they stay eligible for later lessons.
+
+When generating a lesson from a learning path, this step still comes first: take the theme from that lesson's row, then run it before drafting.
+
 ### Time Summary
 
 Timings are suggestions the teacher can flex. Do not put a time next to each heading. Collect all suggested timings in one Time Summary section near the end. Non-activity stages should sum close to the class length. The activity options can add up to more than what remains: that is intentional headroom, not an error.
 
 ### Warm Up Conversation
 
-Placed right after the Objective. A short, genuine check-in the whole class can answer in pairs or groups: 2 to 3 open-ended questions about their lives, in the spirit of "Any highlights from your week?" or "What are you looking forward to this weekend?". Write fresh questions for every lesson and vary the angle. Format as a bulleted list, and carry that format into the Student Handout. These are not lesson-topic teasers and not one-to-one rapport questions: every student must be able to answer regardless of level.
+Placed right after the Objective. A short, genuine check-in the whole class can answer in pairs or groups: 2 to 3 open-ended questions about their lives, in the spirit of "Any highlights from your week?" or "What are you looking forward to this weekend?". Write fresh questions for every lesson and vary the angle. Make them fun and varied in style, not just "how was your week": rotate through types and make at least one of the 2 to 3 playful (would-you-rather, a harmless hypothetical, this-or-that, a quick favorites round, a silly scenario, a best/worst question, a one-minute story prompt, two truths and a lie). A real check-in (the week just past, the week ahead) may be one of the questions, not the whole set. Check the class record's Warm-Up Log, avoid the types used in the last few lessons, and add this lesson's types to it. Format as a bulleted list, and carry that format into the Student Handout. These are not lesson-topic teasers and not one-to-one rapport questions: every student must be able to answer regardless of level.
 
 ### Quick Level Check
 
@@ -209,12 +252,13 @@ Included by default. Class time is for speaking, so **writing tasks belong here*
 ### Fresh Vocabulary
 
 Every lesson gets a standalone new-vocabulary section:
-- Use the count the teacher specified (default 6 to 10), tied to the lesson's theme and the class's shared interests. Examples must read as written for this class.
+- Use the words the teacher kept in Vocabulary selection, tied to the lesson's theme and the class's shared interests. Examples must read as written for this class.
 - **Pitch vocab one CEFR level above the class median.** This is a deliberate stretch (use `references/cefr-levels.md`).
 - **One list for the whole class.** The Support tier adds scaffolds for the same words (sentence frames, example hints, a word bank), never a shorter or easier list. The one exception is a lesson where the teacher chose parallel tracks: each track gets its own list, pitched one level above that track's band, and every list goes into the Vocabulary Log (see `references/differentiation.md`).
 - Apply the vocab constraint from the interview.
 - Lead with collocations, not isolated definitions.
 - **Never repeat a word already taught to this class.** Check the Vocabulary Log first and swap out any overlap.
+- **Every fresh word must appear at least twice in the lesson, beyond its own Fresh Vocabulary entry** (in the Grammar Focus examples, a dialogue, Review of Prior Content, an activity, the wrap-up, or the home assignment). **At least one of those appearances must be outside the activities**, because activities are options the teacher may skip live. Before delivering, count the appearances of each word and add the missing ones. Use the word naturally in a sentence or task, not as a list of words to repeat.
 - A mixed class gets no translation-dependent items.
 
 **Format**, every item exactly:
@@ -250,7 +294,11 @@ Include **2 to 3 activities**, not one fixed activity, so the teacher can choose
 
 Present each option under its own heading named after the activity itself (for example "Role Play: Ordering at a Cafe"), **never lettered or numbered** ("Activity A", "Activity 2"), because the teacher may reorder, skip, or swap them live with no wrapping stage heading, going straight from Grammar Focus into the first activity. No time on the headings. Do not write framing like "choose from these activities". It is fine for the activities' combined time to exceed the class length.
 
+**Every activity must work with no dependencies: if the teacher runs only this one, it must be complete.** Never refer to another activity by name or position ("as in Activity A", "after the debate", "use the words from the previous task"), and never rely on something produced in a different activity. Activities may share a story, setting or theme, but each one restates whatever it needs from that shared context so it makes sense alone, and none may require another to have been done first.
+
 Any list of items within an activity is a **bulleted list**. Numbered lists are for sequential steps only.
+
+**Gap-fills, word banks and matching: never let the items follow the bank.** This matters most in the Support tier, where word banks are the main scaffold. In any exercise where answers come from a word bank or list (gap-fill with a word bank, matching words to meanings or halves of sentences, choosing from a box), the order of the items must not match the order of the bank. Write the items first, then build the bank by listing the answers alphabetically, and check that the items are not in alphabetical order either. Before delivering, read the answers down in item order and compare with the bank: no two consecutive items may use consecutive bank words, and the first and last items must not be the first and last bank words. For matching, jumble the right-hand column fully so that no row lines up with its answer. Check all three tiers, the Student Handout and the home assignment. Also make sure no bank word fits a second gap, and keep the bank to the answers plus at most two extras.
 
 Write every activity's instructions **addressed to the students, in the second person** ("Read the dialogue and discuss..."), not as stage directions to the teacher.
 
@@ -277,8 +325,9 @@ After finalizing a lesson:
 - Set its path row Status to "Delivered <date>".
 - If the lesson's theme, grammar point, activities, or grouping ended up different from the path row, update the row to match what was written and tell the teacher, so later lessons avoid repeats.
 - When the teacher reports what the Quick Level Check showed, update the level headcount, median, distribution, and confidence.
-- **Before** drafting Fresh Vocabulary, read the Vocabulary Log. **After** finalizing the lesson, append the new items, the grammar point, and the home assignment under a new dated heading.
+- **Before** drafting Fresh Vocabulary, read the Vocabulary Log. **After** finalizing the lesson, append the kept words (not the cut candidates), the grammar point, and the home assignment under a new dated heading.
 - **Before** choosing activities, read the Activity Log to apply the no-repeat rule. If the record has no Activity Log yet (an older record), use the Activity Type(s) column of the Learning Path table for lessons already marked Delivered as the history instead, so repeats are avoided from the next lesson. **After** finalizing, append the chosen activities with the date.
+- **Before** writing the Warm Up Conversation, read the Warm-Up Log to avoid recent question types. **After** finalizing, append this lesson's types with the date. If the record has no Warm-Up Log yet (an older record), add one.
 - If the teacher says the class already knows certain words, log those too.
 
 ## Step 5: Differentiation and common pitfalls

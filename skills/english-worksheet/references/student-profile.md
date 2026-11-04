@@ -26,12 +26,13 @@ Extract:
 - Do not guess pronunciation from text. Note pronunciation items as low confidence unless the student or tutor raised them.
 
 **Using a saved Analysis.** The student record may end with one or more `## Analysis` sections from english-analysis. Use the most recent as the primary evidence:
-- Grammar errors, in its priority order, become the focus areas. Its quotes are the evidence, so reuse them (as "fix the mistake" items, never "you said").
+- Grammar errors, in its priority order, become the focus areas. Its quotes are evidence for the tutor and the profile only. Never put a quoted sentence, or an adapted version of one, on a worksheet. Write new "fix the mistake" items on the worksheet topic that contain the same kind of error.
 - Vocabulary recall marked partial or re-taught decides which words go in the vocabulary review parts. Skip words marked solid.
 - Strengths and anything it lists as mastered are excluded, as the profile rules already say.
 - Pronunciation targets: use only if the tutor wants speaking or recording tasks, and mark them low confidence.
 - Fluency, listening and teaching notes can steer exercise types and tone. The tutor's current answers win on any conflict.
 - If older Analysis sections show an error disappearing, treat it as fixed. If it persists across two, move it up.
+- If the record has a `## Error Tracker` section, it is the better source for priority and trend than older Analysis text: take the order from its table, treat fading and minor codes as fixed, and treat stuck codes as the first focus, with a different exercise type than the last worksheet on that code. Never show the tracker, its codes or numbers on a worksheet.
 - Never put scores or CEFR numbers on a worksheet.
 
 **If a written analysis already exists**, use it as the starting point, but spot-check at least two of its claims against the raw evidence when the evidence is available.
