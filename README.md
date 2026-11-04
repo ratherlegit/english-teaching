@@ -16,10 +16,11 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 **The problem.** A one-on-one lesson only works if it fits the person in front of you: their level, job, hobbies, hometown and goal. Writing that from scratch every week takes time, and it is easy to teach the same words twice or lose track of where a multi-week course is heading.
 
 **What it does**
+- Keeps a tutor profile (`_tutor.md`) with your name and standing preferences: vocab candidate and final counts, grammar depth and types, outputs, activity choice and session length. Your name is used for the tutor's side of roleplays and dialogues. Student needs still come first, and a student's own settings or your answer in the session override the profile
 - Starts with a teacher interview (detailed or light), or imports old lesson plans and vocabulary lists so earlier work is not repeated
 - Designs a multi-lesson learning path as a table you approve or adjust before any lesson is written
 - Writes each lesson in a fixed order: objective, a fresh warm-up, review of earlier vocabulary, new vocabulary, grammar focus, 2 to 3 activities, wrap-up and optional home assignment
-- Shows about 20 candidate words (with definitions and examples) before anything else is written, lets you narrow them to the ones you want, and builds the whole lesson around those words, each used at least twice
+- Shows a list of candidate words (about 20 by default, or your profile's number, with definitions and examples) before anything else is written, lets you narrow them to the ones you want, and builds the whole lesson around those words, each used at least twice
 - Picks new vocabulary about one CEFR level above the student, tied to their interests, and never repeats a word already taught. Only the words you keep are logged
 - Uses the latest speaking analysis in the student's record to aim the lesson at their real errors and to review the words they were shakiest on
 - Lets you choose grammar depth (strong, light or none) and where teacher's notes go (inline, at the end, or not at all)
@@ -150,7 +151,7 @@ Every lesson plan, handout, path table, and the tutor-only one-page summary can 
 
 ## Where your information is kept
 
-Student profiles live in `~/eng-teaching-records/`, class records in `~/eng-teaching-records/classes/`, and worksheet profiles and logs in `~/eng-teaching-records/worksheets/`, outside the skill folders so they survive updates. The worksheet skill reads a student's tutoring record, including its latest Analysis section, but never changes it. One-page student summaries live in `~/eng-teaching-records/one-pagers/`. Lesson transcripts live in `~/eng-teaching-records/transcripts/`, and the analysis skill adds an Analysis section to the student's tutoring record. Analysis needs Python 3 with `faster-whisper` and `ffmpeg` installed (`pip install faster-whisper`).
+Student profiles and the tutor profile (`_tutor.md`) live in `~/eng-teaching-records/`, class records in `~/eng-teaching-records/classes/`, and worksheet profiles and logs in `~/eng-teaching-records/worksheets/`, outside the skill folders so they survive updates. The worksheet skill reads a student's tutoring record, including its latest Analysis section, but never changes it. One-page student summaries live in `~/eng-teaching-records/one-pagers/`. Lesson transcripts live in `~/eng-teaching-records/transcripts/`, and the analysis skill adds an Analysis section to the student's tutoring record. Analysis needs Python 3 with `faster-whisper` and `ffmpeg` installed (`pip install faster-whisper`).
 
 ## For developers
 
