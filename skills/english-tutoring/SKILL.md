@@ -9,7 +9,9 @@ Build classroom-ready English lesson plans for ESL/EFL learners. Adapt structure
 
 **This skill covers one-on-one tutoring only.** Group classes need different personalization logic (shared themes instead of one student's interests, per-student differentiation, etc.) and are handled by the separate `english-classroom` skill — if the tutor describes a class of several students, point them to that skill rather than stretching this one to fit. For homework worksheets aimed at one student's recurring errors, point them to the separate `english-worksheet` skill, which reads this skill's student record.
 
-## Step 0: Check for a returning student
+## Step 0: Load the tutor profile, then check for a returning student
+
+**First, read `~/eng-teaching-records/_tutor.md`** (see "Tutor Profile" under Step 4). It holds the tutor's own name and their standing preferences for how lessons are built. If it doesn't exist yet, run the one-time setup described there, then continue. Don't repeat the setup for a tutor who already has the file.
 
 Before interviewing anyone, check whether the tutor is naming a student you already have a record for — e.g. "give me the next lesson for [student name]," or any request naming a student by name. Look for `~/eng-teaching-records/<name-slug>.md` (lowercase, hyphens for spaces).
 
@@ -108,7 +110,7 @@ See `references/lesson-frameworks.md` for framework options (PPP, TBL, ESA, rece
 If this lesson comes from an approved learning path, use that row's theme, grammar point, and activity type as given rather than re-choosing them — Step 4 is about fleshing them out into a full plan, not re-deciding the fundamentals.
 
 ### Lesson-specific questions (ask now, not during Step 1)
-Before drafting, if not already answered for this student, ask:
+Before drafting, settle each item below by this order: the tutor's answer this session, then the student's record, then the Tutor Profile, then the skill default. **Only ask about an item that none of those settle.** Show the values you're assuming in one line (e.g. "Using your usual setup: 8 words, light grammar, handout yes, home assignment yes. Change anything?") so the tutor can override without being quizzed. The items:
 - **Vocab constraint** — any preference for the fresh vocabulary section: phrasal verbs specifically, a certain part of speech (nouns, adjectives, etc.), or no constraint (default: mixed, chosen to fit the topic/interest)
 - **Home assignment** — whether to include a take-home assignment section (default: include, unless the tutor opts out)
 - **Grammar focus depth** — ask whether the lesson's grammar focus should be **strong** (detailed instruction, deeply integrated into the practice and activities), **light** (brief overview, with the grammar lightly woven into the other activities), or **none** (no grammar focus at all, just topical activities). Explain each option in one short line as you ask. If the lesson comes from a learning path, the tutor can pick per lesson; reuse the answer for later lessons unless they want to change it
@@ -120,8 +122,8 @@ These only need answering once — for a single-lesson request, ask them right a
 ### Vocabulary selection (before anything else is drafted)
 Fresh Vocabulary is chosen **first**, as soon as the lesson's theme is known and the lesson-specific questions above are answered. Do not write the warm-up, grammar focus, activities, or any other part of the plan until the tutor has picked the words. Everything else is built around the words they keep, so a word they cut never ends up in the lesson material.
 
-1. **Show a candidate list of about 20** words or phrases (a default, not a fixed number; use another size if the tutor asks). Apply every rule in "Fresh Vocabulary section" below: theme and interests, one CEFR level up, the vocab constraint, nothing already in the Vocabulary Log. Write each candidate in the full item format (`word – definition`, then `Example:` with a collocation-rich sentence written for this student) so the tutor can judge the word and its example together. Nothing else from the lesson is shown at this stage.
-2. **The tutor narrows it**, by saying which to keep or cut. The target is usually 7-10 words (also a default the tutor can override). If they ask for swaps or more candidates, supply them and show the updated list. Don't move on until they confirm the final set.
+1. **Show a candidate list of about 20** words or phrases (a default; use the Vocab candidates size from the student's record or the Tutor Profile, or another size if the tutor asks). Apply every rule in "Fresh Vocabulary section" below: theme and interests, one CEFR level up, the vocab constraint, nothing already in the Vocabulary Log. Write each candidate in the full item format (`word – definition`, then `Example:` with a collocation-rich sentence written for this student) so the tutor can judge the word and its example together. Nothing else from the lesson is shown at this stage.
+2. **The tutor narrows it**, by saying which to keep or cut. The target is the Vocab final range from the student's record or Tutor Profile, usually 7-10 words, and the tutor can override it. If they ask for swaps or more candidates, supply them and show the updated list. Don't move on until they confirm the final set.
 3. **Only then draft the lesson.** The kept words, with the exact definitions and examples the tutor approved, become the Fresh Vocabulary section as written. Example sentences, dialogues, Review of Prior Content, and activities may use only the kept words as the lesson's new vocabulary. Never work in a cut candidate.
    - **Every kept word must appear at least twice in the lesson, beyond its own Fresh Vocabulary entry** (in the Grammar Focus examples, a dialogue, Review of Prior Content, an activity, the wrap-up, or the home assignment). **At least one of those appearances must be outside the Production activities**, because activities are options the tutor may skip live. Before delivering, count the appearances of each kept word and add the missing ones. Use the word naturally in a sentence or task, not as a list of words to repeat
 4. **Record only the kept words** in the Vocabulary Log (see "Student Record File"). Cut candidates are not logged, so they stay eligible for later lessons.
@@ -221,6 +223,34 @@ Label it plainly with the same title as the main plan plus "Student Handout" (e.
 
 If exporting to `.docx` (Step 6) and a handout was requested, export both as separate files rather than combining them into one document.
 
+### Tutor Profile (the tutor's name and standing preferences)
+Keep one file for the tutor at `~/eng-teaching-records/_tutor.md`. The leading underscore keeps it from ever matching a student slug. It outlives skill updates for the same reason student records do.
+
+**What it is for.** Lessons are built around the student's needs: their level, errors, interests, goal, and Analysis. The Tutor Profile never changes any of that. It supplies two things: the tutor's name (so dialogue and role-play partners can be the tutor, not a random character) and how the tutor likes lesson plans shaped (how many words, what kind of grammar, which outputs). Use it to set format and quantity, never to override what the student needs.
+
+```
+# Tutor Profile
+
+- Name: ... (used for the tutor's side of dialogues and role plays)
+- Vocab candidates: ... (size of the list shown first; default about 20)
+- Vocab final: ... (range the tutor narrows it to; default 7-10)
+- Vocab constraint or style: ... (e.g. mixed, phrasal verbs, everyday expressions only)
+- Grammar focus depth: strong/light/none/ask per lesson
+- Grammar types: ... (kinds the tutor likes to teach, and kinds they avoid)
+- Outputs: student handout yes/no | home assignment yes/no | teacher's notes integrated/end-only/none | .docx export yes/no
+- Activity choice: random / named favorites / ask each time
+- Session length: ... (default if a student has none)
+- Notes: ... (anything else the tutor says about how they like plans built)
+```
+
+**Setup (once, when the file doesn't exist).** Ask in one round, as short free-text prompts, not a long form: name, then "how long is a usual session, how many vocab candidates do you want to see and how many do you usually keep, and any kind you prefer (phrasal verbs, everyday expressions)?", then "what kind of grammar do you like to teach, and what do you avoid?", then "which outputs do you usually want: student handout, home assignment, teacher's notes, .docx?". "No preference" is a fine answer for any of them; leave that line out rather than inventing a value. Save the file right away.
+
+**Precedence.** The tutor's answer this session beats the student's record, which beats the Tutor Profile, which beats the skill's defaults. So a student who needs a light-grammar approach keeps it even if the tutor usually teaches strong grammar, and a one-off "20 words this time" doesn't rewrite the profile.
+
+**Grammar types.** Treat them as a filter on *how* a needed point is taught and as a tiebreaker between candidates that serve the student equally. If the student's errors call for a point the tutor avoids, teach that point anyway and say so in one line. The student's need wins.
+
+**Keeping it current.** When the tutor states a preference about themselves rather than one student ("I always want a handout", "I prefer 8 words"), offer once to save it to the Tutor Profile. When it is about one student, save it in that student's record. If a returning student's old record has its own Vocab count, Home assignment, or Teacher's notes line, it still counts as the student's setting. Don't rewrite old records to move those lines.
+
 ### Student Record File (profile, path progress, and vocab log)
 Maintain one file per student at `~/eng-teaching-records/<student-name-slug>.md` (lowercase, hyphens for spaces, e.g. `maria-garcia.md`) — **not** inside the skill's own directory (see Step 0 for why). This is the single source of truth that lets a future session say "next lesson for [student name]" without re-running Step 1, and lets vocab stay genuinely new lesson over lesson. It has three parts:
 
@@ -229,7 +259,6 @@ Maintain one file per student at `~/eng-teaching-records/<student-name-slug>.md`
 
 ## Profile
 - Pronouns: ...
-- Tutor name: ... (optional, only if the tutor has said it; used for dialogue characters)
 - Level: ...
 - Location: ...
 - Interests: ...
@@ -294,7 +323,7 @@ Present each option under its own heading named after the activity itself (e.g. 
 - **Give the student a role or job, not a name.** Write "You are a customer returning a jacket" or "You are a hotel receptionist", not "You are Sarah, a customer...". Only give the student a name if they are playing a specific character who actually has a different name (a famous person, a character from a story).
 - **Never address or mention the tutor on a card.** No "You are..." for the other role, no "Tutor's card", no "Teacher plays...". In a one-on-one session it's understood that the tutor plays the other role. Label the other card by the character alone, in the third person, e.g. "**Mr. Patel, the store manager**" followed by the bulleted info. Since the tutor is usually playing a character, a name is fine on that card. Only the student's card uses "You are..."
 
-**Dialogues (any written dialogue or conversation the student reads or practices, including the model dialogue in Presentation) always include the student as one of the speakers, under their own name from the record** (e.g. "Maria:"). This is different from a role play card, where the student gets a role rather than a name. The other speaker is the tutor's counterpart: give them the tutor's own name if the record has one (Profile, "Tutor name"), and otherwise a character with a different name that fits the scene. If the tutor mentions their name at any point, save it to the Profile for next time; don't add an interview question for it. Never label a speaker "Tutor" or "Teacher". Dialogues with three or more speakers still include the student, and the tutor takes the other parts.
+**Dialogues (any written dialogue or conversation the student reads or practices, including the model dialogue in Presentation) always include the student as one of the speakers, under their own name from the record** (e.g. "Maria:"). This is different from a role play card, where the student gets a role rather than a name. The other speaker is the tutor's counterpart: give them the tutor's own name from the Tutor Profile, and use a character with a different name that fits the scene only when the profile has no name or the scene needs a third person. If the tutor mentions their name at any point, save it to the Tutor Profile. Never label a speaker "Tutor" or "Teacher". Dialogues with three or more speakers still include the student, and the tutor takes the other parts.
 
 **Hard rule: no student-facing text may mention the tutor, teacher, instructor, or "the student" in any form.** That includes "your tutor", "your teacher", "the tutor", "the teacher", "your instructor", "your coach", "the student", and "the tutor will...". The tutor pastes this material into the lesson and is sitting right next to the student, so "your tutor will show you a photo" is awkward, and it makes a lesson built for this one learner read like generic worksheet text. Rewrite so nobody is named: "you will be given a photo", "you will hear a short story", "listen to the story", "look at the photo". If a human has to do something, use "we" or an imperative ("Let's role-play this dialogue", "Take turns reading"). Never say "ask your tutor"; say "ask me" only if the line truly needs a person, otherwise rephrase. Tutor-only content (Teacher's Notes, Materials needed, Time Summary) is the only place the tutor is mentioned, and it never appears in the handout.
 
