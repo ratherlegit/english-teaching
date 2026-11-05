@@ -20,7 +20,7 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 - Starts with a teacher interview (detailed or light), or imports old lesson plans and vocabulary lists so earlier work is not repeated
 - Designs a multi-lesson learning path as a table you approve or adjust before any lesson is written
 - Writes each lesson in a fixed order: objective, a fresh warm-up, review of earlier vocabulary, new vocabulary, grammar focus, 2 to 3 activities, wrap-up and optional home assignment
-- Shows a list of candidate words (about 20 by default, or your profile's number, with definitions and examples) before anything else is written, lets you narrow them to the ones you want, and builds the whole lesson around those words, each used at least twice
+- Shows a list of candidate words (about 20 by default, or your profile's number, with definitions and examples) before anything else is written, lets you narrow them fast by number ("cut 2, 5, 7-9"), and builds the whole lesson around those words, each used at least twice
 - Picks new vocabulary about one CEFR level above the student, tied to their interests, and never repeats a word already taught. Only the words you keep are logged
 - Uses the latest speaking analysis in the student's record to aim the lesson at their real errors and to review the words they were shakiest on
 - Lets you choose grammar depth (strong, light or none) and where teacher's notes go (inline, at the end, or not at all)
@@ -39,7 +39,7 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 **What it does**
 - Interviews you about the class and keeps a class record (profile, optional roster, learning path, activity, warm-up and vocabulary logs)
 - Reads the same teacher profile (`_tutor.md`) as english-tutoring, so your name, vocab counts and preferred outputs carry over
-- Shows about 20 candidate words first, lets you narrow them, and builds the lesson around the ones you keep, each used at least twice
+- Shows about 20 candidate words first, numbered so you can narrow them by number, and builds the lesson around the ones you keep, each used at least twice
 - Plans around themes the whole class shares instead of one student's interests
 - Gives every activity three versions: Support (scaffolds such as sentence frames or a word bank), Core, and Stretch (an extra constraint or longer output)
 - Suggests groupings for each activity, naming pairs and groups when you have a roster
