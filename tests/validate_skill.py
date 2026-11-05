@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.10.0")
+        self.assertEqual(data["version"], "2.11.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -101,6 +101,25 @@ class TestScaffold(unittest.TestCase):
             self.assertIn(phrase, text, phrase)
         for rel in re.findall(r"`((?:references|scripts)/[\w./-]+)`", text):
             self.assertTrue((TUTOR_DIR / rel).is_file(), rel)
+
+    def test_tutoring_final_check_before_delivering(self):
+        text = read(TUTOR_DIR / "SKILL.md")
+        self.assertIn("Final check before delivering", text)
+        block = text.split("Final check before delivering", 1)[1][:2500]
+        for phrase in ["Word-bank order", "Role, not name", "No privacy language", "No tutor words", "Decision Meeting", "secret"]:
+            self.assertIn(phrase, block, phrase)
+
+    def test_vocab_candidates_are_numbered_chat_text(self):
+        for skill in ["english-tutoring", "english-classroom"]:
+            text = read(ROOT / "skills" / skill / "SKILL.md")
+            for phrase in ["never inside a question, option or form box", "Number the candidates", "cut 2, 5, 7-9", "never appear in the lesson"]:
+                self.assertIn(phrase, text, f"{skill}: {phrase}")
+
+    def test_tutoring_card_activities_point_to_role_card_rules(self):
+        text = read(TUTOR_DIR / "references" / "teacher-activities.md")
+        for name in ["Role Play", "Phone Call Simulation", "Decision Meeting"]:
+            line = next(ln for ln in text.splitlines() if f"**{name}**" in ln)
+            self.assertIn("role card rules", line, name)
 
     def test_activity_weights_present(self):
         for d in (TUTOR_DIR, SKILL_DIR):
