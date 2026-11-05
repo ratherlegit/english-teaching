@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.12.0")
+        self.assertEqual(data["version"], "2.14.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -571,6 +571,151 @@ class TestStudentAnalysisSkill(unittest.TestCase):
             bad = subprocess.run([sys.executable, str(script), str(md), str(out)], capture_output=True, text=True)
             self.assertNotEqual(bad.returncode, 0)
             self.assertIn("Too long for one page", bad.stderr)
+
+    def test_tutor_stats_runs(self):
+        sample = ("# T\n\n---\n\n**[00:01] Tutor:** How was your week?\n\n"
+                  "**[00:05] Maria:** It was good, I went to the market with my sister and we bought a lot of fruit.\n\n"
+                  "**[01:10] Tutor:** " + ("explain " * 120) + "\n\n**[02:00] Maria:** Okay.\n")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "t.md"
+            path.write_text(sample, encoding="utf-8")
+            out = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "tutor_stats.py"), str(path), "Maria",
+                                  "--split", "01:00"], capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertIn("tutor turns of 100+ words: 1 of 2", out.stdout)
+        self.assertIn("followed by a student answer of 15+ words: 1", out.stdout)
+        self.assertIn("Before 01:00", out.stdout)
+        self.assertIn("From 01:00", out.stdout)
+
+    def _ledger(self, tmp, tsv, extra=()):
+        transcript = Path(tmp) / "t.md"
+        transcript.write_text("# T\n\n---\n\n**[00:01] Tutor:** How was your week?\n\n"
+                              "**[00:05] Maria:** Yesterday I go to the market, and my sister she are happy.\n\n"
+                              "**[01:30] Maria:** We was tired after that.\n", encoding="utf-8")
+        errors = Path(tmp) / "e.tsv"
+        errors.write_text(tsv, encoding="utf-8")
+        return subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "add", "maria",
+                               "2026-01-01", str(transcript), "Maria", str(errors), "--records-dir", tmp, *extra],
+                              capture_output=True, text=True)
+
+    def test_ledger_quote_check_phases_and_scores(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = self._ledger(tmp, "TENSE\t00:05\tYesterday I went to the market\tgo -> went\n")
+            self.assertNotEqual(bad.returncode, 0)
+            self.assertIn("not in Maria's turns", bad.stderr + bad.stdout)
+            self.assertFalse((Path(tmp) / "error-ledgers" / "maria.json").exists())
+            tsv = ("TENSE\t00:05\tYesterday I go to the market\twent\n"
+                   "SVA\t00:05\tmy sister she are happy\tis\n"
+                   "SVA\t01:30\tWe was tired\twere\n")
+            ok = self._ledger(tmp, tsv, ["--split", "01:00", "--phase-names", "open,review",
+                                         "--scores", "18,15,14", "--level", "B1+", "--talk-pct", "45"])
+            self.assertEqual(ok.returncode, 0, ok.stderr)
+            self.assertIn("Phases in 2026-01-01 (split at 01:00): open:", ok.stdout)
+            hist = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "history", "maria",
+                                   "--records-dir", tmp], capture_output=True, text=True)
+            self.assertEqual(hist.returncode, 0, hist.stderr)
+            self.assertIn("| 2026-01-01 | B1+ | 18/25 | 15/25 | 14/25 | 63/100 | 45% |", hist.stdout)
+            sc = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "score", "maria",
+                                 "2025-12-01", "17", "14", "13", "B1", "--records-dir", tmp],
+                                capture_output=True, text=True)
+            self.assertEqual(sc.returncode, 0, sc.stderr)
+            self.assertLess(sc.stdout.index("2025-12-01"), sc.stdout.index("2026-01-01"))
+            ph = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "phases", "maria",
+                                 "--records-dir", tmp], capture_output=True, text=True)
+            self.assertEqual(ph.returncode, 0, ph.stderr)
+            self.assertIn("### open", ph.stdout)
+            self.assertIn("| All codes |", ph.stdout)
+
+    def test_report_builder(self):
+        try:
+            import docx  # noqa: F401
+        except ImportError:
+            self.skipTest("python-docx not installed")
+        script = SA_DIR / "scripts" / "report_docx.py"
+        text = ("# Maria: Lesson Report, 2026-01-01\n*Level B1+*\n\n## At a glance\n| Fluency | Grammar |\n|---|---|\n| 18/25 | 14/25 |\n\n"
+                "### Tips\n- One\n1. First\n> a quote\n\n" + ("word " * 800) + "\n")
+        with tempfile.TemporaryDirectory() as tmp:
+            md, out = Path(tmp) / "r.md", Path(tmp) / "r.docx"
+            md.write_text(text, encoding="utf-8")
+            res = subprocess.run([sys.executable, str(script), str(md), str(out)], capture_output=True, text=True)
+            self.assertEqual(res.returncode, 0, res.stderr)
+            self.assertTrue(out.exists())
+
+    def test_report_references_cover_required_sections(self):
+        report = read(SA_DIR / "references" / "lesson-report.md")
+        for heading in ("At a glance", "What the lesson covered", "Tips for you", "How sure we are"):
+            self.assertIn(heading, report)
+        profile = read(SA_DIR / "references" / "student-profile.md")
+        for heading in ("Progress over time", "Error patterns over time", "What to do next"):
+            self.assertIn(heading, profile)
+        tips = read(SA_DIR / "references" / "tutor-tips.md")
+        self.assertIn("At most three tips", tips)
+
+    def _audit(self, root, *args):
+        return subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "records_audit.py"),
+                               "--records-dir", str(root), *args], capture_output=True, text=True)
+
+    def _make_records(self, root, pronouns="she/her"):
+        for d in ("transcripts", "error-ledgers", "glossaries", "lesson-reports", "student-profiles", "one-pagers"):
+            (root / d).mkdir(parents=True, exist_ok=True)
+        prof = "- Pronouns: " + pronouns + "\n" if pronouns else ""
+        (root / "ana.md").write_text("# Student Record: Ana\n\n## Profile\n" + prof + "- Level: B1\n\n## Analysis: transcript of 2026-01-05 (x)\ntext\n")
+        (root / "transcripts" / "ana-2026-01-05-transcript.md").write_text("# t\n---\n**[00:01] Ana:** hi\n")
+        (root / "transcripts" / "ana-2026-01-05-errors.tsv").write_text("")
+        (root / "error-ledgers" / "ana.json").write_text('{"student": "ana", "sessions": [{"date": "2026-01-05"}], "scores": []}')
+        (root / "glossaries" / "ana.txt").write_text("Ana")
+        for folder, name in (("lesson-reports", "ana-2026-01-05-lesson-report"), ("student-profiles", "ana-profile"), ("one-pagers", "ana-one-pager")):
+            (root / folder / (name + ".md")).write_text("# x\n*Updated 2026-01-06*\n")
+            (root / folder / (name + ".docx")).write_text("x")
+
+    def test_records_audit_clean_and_findings(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._make_records(root)
+            ok = self._audit(root)
+            self.assertEqual(ok.returncode, 0, ok.stdout)
+            (root / "ana-lesson-1.docx").write_text("x")
+            bad = self._audit(root)
+            self.assertEqual(bad.returncode, 1)
+            self.assertIn("loose file 'ana-lesson-1.docx'", bad.stdout)
+            (root / "ana-lesson-1.docx").unlink()
+            (root / "transcripts" / "ana-2026-01-05-errors.tsv").unlink()
+            self.assertIn("no errors.tsv", self._audit(root).stdout)
+
+    def test_records_audit_pronouns_and_handout_versions(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._make_records(root, pronouns="")
+            out = self._audit(root)
+            self.assertEqual(out.returncode, 1)
+            self.assertIn("no pronouns", out.stdout)
+            self._make_records(root)
+            folder = root / "handouts" / "ana"
+            folder.mkdir(parents=True)
+            for name in ("ana-lesson-2-handout.docx", "ana-lesson-2-handout-v2.docx"):
+                (folder / name).write_text("x")
+            self.assertIn("2 handout files for lesson 2", self._audit(root).stdout)
+            for name in ("ana-2026-01-05-handout.docx", "ana-2026-01-05-handout-v2.docx"):
+                (folder / name).write_text("x")
+            self.assertIn("2 handout files for lesson 2026-01-05", self._audit(root).stdout)
+
+    def test_records_rules_in_skills(self):
+        layout = read(SA_DIR / "references" / "records-layout.md")
+        self.assertIn("Records first", layout)
+        self.assertIn("Never infer pronouns", layout)
+        self.assertIn("records_audit.py", read(SA_MD))
+        self.assertIn("references/records-layout.md", read(SA_MD))
+        tutoring = read(TUTOR_DIR / "SKILL.md")
+        self.assertIn("Records first", tutoring)
+        self.assertIn("eng-teaching-records/handouts/<student-name>/", tutoring)
+
+    def test_transcribe_accepts_glossary(self):
+        self.assertIn("--glossary", read(SA_DIR / "scripts" / "transcribe.py"))
+        self.assertIn("--glossary", read(SA_MD))
 
 
 if __name__ == "__main__":
