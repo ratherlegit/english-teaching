@@ -4,8 +4,20 @@
 Usage:
   error_ledger.py add <slug> <YYYY-MM-DD> <labeled_transcript.md> <StudentName> <errors.tsv>
                       [--tutor Tutor] [--label TEXT] [--write] [--records-dir DIR] [--backup-dir DIR]
+                      [--split mm:ss] [--phase-names A,B] [--scores F,V,G] [--level B1+] [--talk-pct N]
+                      [--allow-unmatched]
   error_ledger.py show <slug> [--write] [--records-dir DIR] [--backup-dir DIR]
+  error_ledger.py score <slug> <YYYY-MM-DD> <fluency> <vocabulary> <grammar> <level> [talk_pct]
+  error_ledger.py history <slug>
+  error_ledger.py phases <slug>
   error_ledger.py codes
+
+--split mm:ss splits the lesson into two phases (for example open conversation and tutor-led
+review) and reports the error rate for each, because the two are not comparable. --phase-names
+names them (default "first part,second part"). --scores/--level/--talk-pct store the analyst's
+scores for the session; `score` stores them for an earlier session that has no tagged errors;
+`history` prints the Score History table; `phases` prints each code's rate per phase for every session, so open talk is compared with open talk. Every quote in errors.tsv must appear in the
+transcript (ignoring case and punctuation) or the run stops; --allow-unmatched overrides that.
 
 errors.tsv has one error per line, tab separated:  CODE <TAB> mm:ss <TAB> quote <TAB> correction
 Lines starting with # and blank lines are skipped. Codes are listed by `codes` and in
@@ -57,6 +69,53 @@ def student_words(transcript, student, tutor):
     if n == 0:
         sys.exit(f"No turns found for speaker label '{student}' in {transcript}")
     return n
+
+
+def norm(text):
+    text = text.lower().replace("\u2019", "'").replace("\u2018", "'")
+    return " ".join(re.sub(r"[^a-z0-9' ]", " ", text).split())
+
+
+def student_text(transcript, student):
+    text = open(transcript, encoding="utf-8").read().split("\n---\n", 1)[-1]
+    body = [re.sub(r"\[[^\]]*\]", " ", b) for _m, _s, who, b in
+            re.findall(r"\*\*\[(\d+):(\d+)\] ([^:*]+):\*\* (.*)", text) if who == student]
+    return norm(" ".join(body))
+
+
+def unmatched_quotes(examples, transcript, student):
+    """Quotes that do not appear in the student's own turns (ignoring case and punctuation)."""
+    haystack = student_text(transcript, student)
+    bad = []
+    for code, rows in examples.items():
+        for t, q, _f in rows:
+            if norm(q) not in haystack:
+                bad.append((code, t, q))
+    return bad
+
+
+def split_seconds(value):
+    m = re.fullmatch(r"(\d+):(\d{2})", value or "")
+    if not m:
+        sys.exit("--split needs mm:ss")
+    return int(m.group(1)) * 60 + int(m.group(2))
+
+
+def phases(transcript, student, examples, split, names):
+    """Student words and tagged errors before and after the split time."""
+    text = open(transcript, encoding="utf-8").read().split("\n---\n", 1)[-1]
+    words = [0, 0]
+    for m, sec, who, body in re.findall(r"\*\*\[(\d+):(\d+)\] ([^:*]+):\*\* (.*)", text):
+        if who == student:
+            k = 0 if int(m) * 60 + int(sec) < split else 1
+            words[k] += len(re.findall(r"[A-Za-z']+", re.sub(r"\[[^\]]*\]", "", body)))
+    errs = [0, 0]
+    for rows in examples.values():
+        for t, _q, _f in rows:
+            m = re.fullmatch(r"(\d+):(\d{2})", t)
+            if m:
+                errs[0 if int(m.group(1)) * 60 + int(m.group(2)) < split else 1] += 1
+    return {"split": split, "names": names, "words": words, "errors": errs}
 
 
 def read_errors(path):
@@ -136,6 +195,20 @@ def render(slug, led):
     out.append("Student words per session: " + ", ".join(f"{s['date']}: {s['words']}" for s in sessions)
                + ". Errors tagged: " + ", ".join(f"{s['date']}: {sum(s['counts'].values())}" for s in sessions) + ".")
     last = sessions[-1]
+    phased = [x for x in sessions if x.get("phases") and all(x["phases"]["words"])]
+    if phased:
+        out.append("")
+    for x in phased:
+        ph = x["phases"]
+        a, b = ph["words"]
+        ea, eb = ph["errors"]
+        sp = ph["split"]
+        out.append(f"Phases in {x['date']} (split at {sp // 60:02d}:{sp % 60:02d}): "
+                   f"{ph['names'][0]}: {a} words, {ea} errors ({1000.0 * ea / a:.1f} per 1,000); "
+                   f"{ph['names'][1]}: {b} words, {eb} errors ({1000.0 * eb / b:.1f} per 1,000).")
+    if phased:
+        out.append("Compare each phase with the same kind of phase in other sessions, not with each other "
+                   "(`error_ledger.py phases` prints the codes by phase).")
     out.append("")
     out.append(f"Examples from {last['date']} (top codes):")
     shown = 0
@@ -148,6 +221,58 @@ def render(slug, led):
         shown += 1
         if shown == 5:
             break
+    return "\n".join(out) + "\n"
+
+
+def render_phases(led):
+    """Per-code error rates for each phase, one column per session that has a phase split."""
+    sess = [x for x in sorted(led["sessions"], key=lambda x: x["date"])
+            if x.get("phases") and all(x["phases"]["words"])]
+    if not sess:
+        return ""
+    out = []
+    for k in (0, 1):
+        names = sess[-1]["phases"]["names"]
+        per = []
+        for x in sess:
+            sp = x["phases"]["split"]
+            cnt = {}
+            for code, rows in x["examples"].items():
+                for t, _q, _f in rows:
+                    m = re.fullmatch(r"(\d+):(\d{2})", t)
+                    if m and (0 if int(m.group(1)) * 60 + int(m.group(2)) < sp else 1) == k:
+                        cnt[code] = cnt.get(code, 0) + 1
+            per.append((cnt, x["phases"]["words"][k]))
+        codes = [c for c in CODES if any(cnt.get(c) for cnt, _w in per)]
+        codes.sort(key=lambda c: -per[-1][0].get(c, 0))
+        out.append(f"### {names[k]} (errors per 1,000 student words in that phase, count in brackets)")
+        out.append("")
+        out.append("| Code | " + " | ".join(x["date"] for x in sess) + " |")
+        out.append("|---|" + "---|" * len(sess))
+        for c in codes:
+            out.append(f"| {c} | " + " | ".join(f"{1000.0 * cnt.get(c, 0) / w:.1f} ({cnt.get(c, 0)})" for cnt, w in per) + " |")
+        out.append("| All codes | " + " | ".join(f"{1000.0 * sum(cnt.values()) / w:.1f} ({sum(cnt.values())})" for cnt, w in per) + " |")
+        out.append("")
+    return "\n".join(out)
+
+
+def set_scores(led, date, fluency, vocabulary, grammar, level, talk=None):
+    total = round((fluency + vocabulary + grammar) / 75 * 100)
+    row = {"date": date, "level": level, "fluency": fluency, "vocabulary": vocabulary,
+           "grammar": grammar, "total": total, "talk_pct": talk}
+    led["scores"] = [r for r in led.get("scores", []) if r["date"] != date] + [row]
+    led["scores"].sort(key=lambda r: r["date"])
+
+
+def render_history(led):
+    rows = sorted(led.get("scores", []), key=lambda r: r["date"])
+    if not rows:
+        return ""
+    out = ["| Date | Level | Fluency | Vocabulary | Grammar | Score | Student talk |", "|---|---|---|---|---|---|---|"]
+    for r in rows:
+        talk = f"{r['talk_pct']}%" if r.get("talk_pct") is not None else "n/a"
+        out.append(f"| {r['date']} | {r['level']} | {r['fluency']}/25 | {r['vocabulary']}/25 | "
+                   f"{r['grammar']}/25 | {r['total']}/100 | {talk} |")
     return "\n".join(out) + "\n"
 
 
@@ -187,6 +312,14 @@ def main():
     backup = os.path.expanduser(flag(a, "--backup-dir", tempfile.gettempdir()))
     tutor = flag(a, "--tutor", "Tutor")
     label = flag(a, "--label", "")
+    split = flag(a, "--split")
+    phase_names = flag(a, "--phase-names", "first part,second part").split(",")
+    scores = flag(a, "--scores")
+    level = flag(a, "--level")
+    talk_pct = flag(a, "--talk-pct")
+    allow = "--allow-unmatched" in a
+    if allow:
+        a.remove("--allow-unmatched")
     cmd = a[0]
     if cmd == "codes":
         for c, (name, imp) in CODES.items():
@@ -207,12 +340,49 @@ def main():
             sys.exit("date must be YYYY-MM-DD")
         words = student_words(transcript, student, tutor)
         counts, examples = read_errors(errors)
+        bad = unmatched_quotes(examples, transcript, student)
+        if bad and not allow:
+            lines = "\n".join(f"  {c} [{t}] {q}" for c, t, q in bad)
+            sys.exit(f"{len(bad)} tagged quote(s) are not in {student}'s turns in the transcript. "
+                     f"Fix the .tsv (or pass --allow-unmatched):\n{lines}")
+        entry = {"date": date, "label": label, "words": words, "counts": counts, "examples": examples}
+        if split:
+            if len(phase_names) != 2:
+                sys.exit("--phase-names needs two names separated by a comma")
+            entry["phases"] = phases(transcript, student, examples, split_seconds(split), phase_names)
         led["sessions"] = [s for s in led["sessions"] if s["date"] != date]
-        led["sessions"].append({"date": date, "label": label, "words": words,
-                                "counts": counts, "examples": examples})
+        led["sessions"].append(entry)
+        if scores:
+            try:
+                f, v, g = [int(x) for x in scores.split(",")]
+            except ValueError:
+                sys.exit("--scores needs three whole numbers: fluency,vocabulary,grammar")
+            if not level:
+                sys.exit("--scores also needs --level (for example B1+)")
+            set_scores(led, date, f, v, g, level, int(talk_pct) if talk_pct else None)
         os.makedirs(os.path.dirname(ledger_path), exist_ok=True)
         json.dump(led, open(ledger_path, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
         print(f"Saved {date}: {words} student words, {sum(counts.values())} errors tagged -> {ledger_path}")
+    elif cmd == "score":
+        if len(a) not in (7, 8) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", a[2]):
+            sys.exit(__doc__)
+        set_scores(led, a[2], int(a[3]), int(a[4]), int(a[5]), a[6], int(a[7]) if len(a) == 8 else None)
+        os.makedirs(os.path.dirname(ledger_path), exist_ok=True)
+        json.dump(led, open(ledger_path, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+        print(render_history(led))
+        return
+    elif cmd == "phases":
+        table = render_phases(led)
+        if not table:
+            sys.exit(f"No sessions with a phase split for {slug}. Use --split when adding a session.")
+        print(table)
+        return
+    elif cmd == "history":
+        hist = render_history(led)
+        if not hist:
+            sys.exit(f"No scores recorded for {slug}. Use `score` to add earlier sessions.")
+        print(hist)
+        return
     elif cmd != "show":
         sys.exit(__doc__)
     section = render(slug, led)

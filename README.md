@@ -7,7 +7,7 @@
 | **english-tutoring** | You teach one student | A personalized lesson or a whole approved learning path |
 | **english-classroom** | You teach a group | Lesson plans with Support, Core and Stretch versions of every activity |
 | **english-worksheet** | A student needs homework | Worksheets and an answer key built from that student's real errors |
-| **english-analysis** | You recorded a lesson | A transcript, a CEFR level and score, and a record update |
+| **english-analysis** | You recorded a lesson | A transcript, a CEFR level and score, a record update, and Word reports |
 
 All four are fast first drafts, not replacements for your judgment. Every activity, question, score and note is meant to be reviewed, edited, or swapped. Each skill points to the others when a request fits one better.
 
@@ -80,13 +80,14 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 **The problem.** After a lesson you remember a few mistakes, but not how much the student spoke, which errors repeat, or which old words they still know. Without evidence, the next lesson plan is built on a guess.
 
 **What it does**
-- Joins recording chunks (including a zip of numbered parts) into one audio file and transcribes it on your own computer with a local model, so no student audio is uploaded
+- Joins recording chunks (including a zip of numbered parts) into one audio file and transcribes it on your own computer with a local model, so no student audio is uploaded. A per-student glossary of names and terms (clients, teams, acronyms) is given to the model, so they are misheard less often
 - Labels tutor and student from context, keeping the student's words word for word and marking any uncertain lines
-- Measures talk-time share, longest turns and filler counts
+- Measures talk-time share, longest turns and filler counts, and shows the student's share and error rate separately for open conversation and tutor-led review, since the two are not comparable
 - Scores speaking with a CEFR level (with half-steps such as B1+) and a score out of 100 built from fluency, vocabulary and grammar, each out of 25, using calibration anchors so scores stay consistent
 - Checks which earlier vocabulary the student recalled, needed a hint for, or had to be re-taught
-- Tags every grammar and word-choice error with one of 15 codes and keeps an Error Tracker in the student's record: errors per 1,000 words for each lesson, and a status for each code (new, improving, fading, rising, stuck). Counting is done by a script, so trends are comparable from lesson to lesson
+- Tags every grammar and word-choice error with one of 15 codes and keeps an Error Tracker in the student's record: errors per 1,000 words for each lesson, and a status for each code (new, improving, fading, rising, stuck). Counting is done by a script, so trends are comparable from lesson to lesson, and every tagged quote is checked against the transcript so a typo cannot slip into the numbers
 - Saves the transcript to `~/eng-teaching-records/transcripts/` and adds an Analysis section to the student's tutoring record, with strengths, error patterns in priority order and teaching notes that follow your preferences
+- Builds an overall student profile as a Word document (score history, error trends, strengths, what sticks, learning-path progress, what to do next), and, only when you ask, a lesson report for one lesson (what was planned versus delivered, talk time by phase, error table, vocabulary recall, next steps, and a few tips about your own teaching such as long explanations and which questions got long answers)
 - Builds a tutor-only one-page summary per student as an editable `.docx` (level, score, strengths, top three things to work on with quoted examples, vocabulary check, talk time, next-lesson focus), on request at any time from the saved analysis. A length limit keeps it to one page
 
 **Why it helps**
