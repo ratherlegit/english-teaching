@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.11.0")
+        self.assertEqual(data["version"], "2.12.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -106,8 +106,39 @@ class TestScaffold(unittest.TestCase):
         text = read(TUTOR_DIR / "SKILL.md")
         self.assertIn("Final check before delivering", text)
         block = text.split("Final check before delivering", 1)[1][:2500]
-        for phrase in ["Word-bank order", "Role, not name", "No privacy language", "No tutor words", "Decision Meeting", "secret"]:
+        for phrase in ["Word-bank order", "Role, not name", "No privacy language", "No tutor words", "Grammar consistency", "Decision Meeting", "secret"]:
             self.assertIn(phrase, block, phrase)
+
+    def test_tutoring_grammar_must_follow_its_own_rule(self):
+        text = read(TUTOR_DIR / "SKILL.md")
+        self.assertIn("must follow its own rule", text)
+        self.assertIn("Never leave an unexplained exception", text)
+
+    def test_classroom_final_check_before_delivering(self):
+        text = read(SKILL_MD)
+        self.assertIn("Final check before delivering", text)
+        block = text.split("Final check before delivering", 1)[1][:2500]
+        for phrase in ["Word-bank order", "Grammar consistency", "Controlled Practice", "No teacher words"]:
+            self.assertIn(phrase, block, phrase)
+
+    def test_classroom_controlled_practice_and_grammar_consistency(self):
+        text = read(SKILL_MD)
+        self.assertIn("must follow its own rule", text)
+        self.assertIn("### Controlled Practice", text)
+        block = text.split("### Controlled Practice", 1)[1].split("###", 1)[0]
+        for phrase in ["right after the Grammar Focus", "before any role play", "does not count", "6 to 8 items", "class's own world", "Recycle the fresh vocabulary", "read the finished sentences aloud", "one sentence of their own"]:
+            self.assertIn(phrase, block, phrase)
+        self.assertIn("Controlled Practice (<format>)", text)
+        self.assertLess(text.index("6. **Grammar Focus**"), text.index("7. **Controlled Practice**"))
+
+    def test_tutoring_controlled_practice_stage(self):
+        text = read(TUTOR_DIR / "SKILL.md")
+        self.assertIn("### Controlled Practice section", text)
+        block = text.split("### Controlled Practice section", 1)[1].split("###", 1)[0]
+        for phrase in ["strong", "light", "right after the Grammar Focus", "before any role play", "does not count", "6 to 8 items", "student's own world", "Recycle the new vocabulary", "read the finished sentences aloud", "one sentence of their own"]:
+            self.assertIn(phrase, block, phrase)
+        self.assertIn("Controlled Practice (<format>)", text)
+        self.assertLess(text.index("6. **Controlled Practice**"), text.index("7. **Production/application activities**"))
 
     def test_vocab_candidates_are_numbered_chat_text(self):
         for skill in ["english-tutoring", "english-classroom"]:

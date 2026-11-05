@@ -205,13 +205,14 @@ Unless the teacher specifies their own format, include in this order:
 4. **Review of Prior Content** (every lesson that has anything to review)
 5. **Fresh Vocabulary**
 6. **Grammar Focus**
-7. **Activities** (2 to 3, each with a suggested grouping and three versions)
-8. **Wrap-up**
-9. **Home Assignment** (unless the teacher opted out)
-10. **Materials needed**
-11. **Time Summary**
-12. **Teacher's Notes** (if not turned off)
-13. **Student Handout** (a second copy without Teacher's Notes, Materials needed, and Time Summary, unless the teacher opted out)
+7. **Controlled Practice** (right after Grammar Focus, before any activity; see below)
+8. **Activities** (2 to 3, each with a suggested grouping and three versions)
+9. **Wrap-up**
+10. **Home Assignment** (unless the teacher opted out)
+11. **Materials needed**
+12. **Time Summary**
+13. **Teacher's Notes** (if not turned off)
+14. **Student Handout** (a second copy without Teacher's Notes, Materials needed, and Time Summary, unless the teacher opted out)
 
 ### Vocabulary selection (before anything else is drafted)
 
@@ -277,7 +278,21 @@ The lesson's main teaching point, taught once at the median level (or at the anc
 - **Separate examples for each distinct use or form** if the grammar point has several. If the lesson is deliberately scoped to one use, say so briefly.
 - A short **review box** of the prerequisite structure for the Support tier, and a short **extension** (a further use or a contrast) for the Stretch tier.
 
+**The Grammar Focus must follow its own rule: the heading, the stated rule, the formula and every example have to agree.** Before delivering, test each example against the rule as written. If an example breaks the rule (for example *stressful* under an "-ed and -ing adjectives" rule, where the word is neither), either replace it with an example that fits, or widen the heading, the formula and the rule to cover the exception and add a one-line explanation of it. Never leave an unexplained exception sitting in the examples. The same goes for the Controlled Practice items and their answers: every answer must be correct under the rule as taught.
+
 Keep it tight. Edge cases and register notes belong in a Teacher's Note, not in the student-facing explanation. Practice that follows builds on the examples already given.
+
+### Controlled Practice
+
+Every lesson with a Grammar Focus gets a short, low-stakes exercise **right after the Grammar Focus and before any role play, discussion or other activity heading**, under its own heading, `Controlled Practice`. It is a lesson stage, not an activity option:
+- It **does not count** toward the 2 to 3 activities, is not drawn from the weighted activity list, is not written in three versions, and is not subject to the no-repeat rule or the "must work with no dependencies" rule (it builds directly on the Grammar Focus above it). It is written once, at the same band as the Grammar Focus
+- **Format:** choose the right form, fix the sentence, or a short gap-fill. Pick one. Check the Activity Log and vary the format from the previous lesson's controlled practice when you can
+- **About 6 to 8 items**, each with one clear answer, practicing only this lesson's grammar point. A numbered list is right here, since the class works through the items in order. A gap-fill with a word bank follows the word-bank order rule below
+- **Use the class's own world:** their shared interests, workplaces, city, jobs and real scenarios from the class record, written fresh (never reuse a student's own sentences). The sentences should read as if written for this one class
+- **Recycle the fresh vocabulary:** work kept Fresh Vocabulary words into the items. These appearances count toward each word's required two
+- **End with a short speaking or writing step**, one line addressed to the students: read the finished sentences aloud to a partner, or make one sentence of their own with the structure. Pick one, not both
+- Put the answers in a short Teacher's Note, never in the student-facing text
+- The Time Summary lists it as its own line
 
 ### Activities
 
@@ -304,6 +319,12 @@ Write every activity's instructions **addressed to the students, in the second p
 
 **Hard rule: no student-facing text may mention the teacher, tutor, instructor, or "the students" in any form.** That includes "your teacher", "ask your teacher", "the teacher will...", and "the students". The teacher pastes this material into the lesson and is standing in the room, so "your teacher will read a story" is awkward and makes a lesson built for this class read like generic worksheet text. Rewrite so nobody is named: "you will hear a short story", "look at the photo". If a person must act, use "we" or an imperative ("Take turns reading", "Let's check the answers together"). Only Teacher's Notes, Materials needed, and the Time Summary may mention the teacher, and none of them appear in the handout. **Before delivering the plan or handout, scan the student-facing text for teacher, tutor, instructor, and student (case-insensitive) and rewrite every hit.** Calibrate language to the median level. Personalize using the class's shared interests, goal, and place. For a mono-lingual class, pre-empt the likely L1 errors silently.
 
+**Final check before delivering (run all four, on the main plan, the Student Handout and every home assignment, and fix every hit before showing anything):**
+1. **Word-bank order.** For every gap-fill, matching or choose-from-a-box exercise, in every tier: read the answers down in item order next to the bank. Items must not follow the bank's order (the bank is alphabetical, the items are not).
+2. **Grammar consistency.** Read the Grammar Focus heading, rule, formula and each example in turn. Every example must fit the rule as written, and any exception must be covered in the heading, the formula and a one-line explanation, or the example replaced. Then check each Controlled Practice answer against the same rule.
+3. **Controlled Practice.** The lesson has a Controlled Practice stage right after the Grammar Focus and before the first activity, with about 6 to 8 items, recycled vocabulary, and a closing read-aloud or own-sentence step. It is not counted among the activities and has no Support, Core and Stretch split.
+4. **No teacher words.** The teacher/tutor/instructor/student scan above.
+
 ### Wrap-up
 
 Close with an **exit task** that is quick to check across the room: a one-sentence ticket, a pair check, a mini-whiteboard answer, or a written line the teacher collects. It must be specific and tied to the lesson's content, a real check of the objective, not "summarize what you learned". For example: "Write one sentence about a film you would recommend to a friend, using the passive voice and one new vocabulary word."
@@ -326,7 +347,7 @@ After finalizing a lesson:
 - If the lesson's theme, grammar point, activities, or grouping ended up different from the path row, update the row to match what was written and tell the teacher, so later lessons avoid repeats.
 - When the teacher reports what the Quick Level Check showed, update the level headcount, median, distribution, and confidence.
 - **Before** drafting Fresh Vocabulary, read the Vocabulary Log. **After** finalizing the lesson, append the kept words (not the cut candidates), the grammar point, and the home assignment under a new dated heading.
-- **Before** choosing activities, read the Activity Log to apply the no-repeat rule. If the record has no Activity Log yet (an older record), use the Activity Type(s) column of the Learning Path table for lessons already marked Delivered as the history instead, so repeats are avoided from the next lesson. **After** finalizing, append the chosen activities with the date.
+- **Before** choosing activities, read the Activity Log to apply the no-repeat rule. If the record has no Activity Log yet (an older record), use the Activity Type(s) column of the Learning Path table for lessons already marked Delivered as the history instead, so repeats are avoided from the next lesson. **After** finalizing, append the chosen activities with the date, and also log the Controlled Practice as `Controlled Practice (<format>)`, e.g. `- 2026-10-07: Controlled Practice (fix the sentence), Role Play, This or That`. Controlled Practice entries do not count toward the no-repeat rule for activities; they are logged so the next lesson can vary the format.
 - **Before** writing the Warm Up Conversation, read the Warm-Up Log to avoid recent question types. **After** finalizing, append this lesson's types with the date. If the record has no Warm-Up Log yet (an older record), add one.
 - If the teacher says the class already knows certain words, log those too.
 
