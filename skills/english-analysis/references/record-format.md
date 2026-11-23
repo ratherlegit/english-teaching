@@ -24,7 +24,8 @@ Keep the student's words verbatim, errors included. Put analyst notes in square 
 
 ## Analysis section
 Append at the end of the student record as `## Analysis: transcript of <date(s)> (<lesson label>; source: transcripts/<file>)`. First line: "Estimate from N recording(s), not a validated test..." plus conditions. Then bullets, in this order:
-- Overall: level, score /100, the three parts and sum (match the anchors), pronunciation not scored
+- Overall: level, score /100, the three parts and sum (match the anchors; half points allowed), the average of the last three recordings and whether the change is inside the plus or minus 3 band, the grammar anchor from the error rate and any adjustment with its reason, pronunciation not scored
+- Task mix: the share of the student's speech in open conversation, prepared monologue, tutor-led review, reading aloud and role play or debate, and whether this session was easier or harder than the last (see the scoring rubric)
 - Talk time: student % of words, tutor %, which prompts produced the best and weakest output
 - Strengths (specific, with quoted examples)
 - Grammar errors in priority order (take the order and the status words from the Error Tracker table), each with quoted examples and the change since the last session

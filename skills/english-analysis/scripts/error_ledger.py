@@ -7,7 +7,7 @@ Usage:
                       [--split mm:ss] [--phase-names A,B] [--scores F,V,G] [--level B1+] [--talk-pct N]
                       [--allow-unmatched]
   error_ledger.py show <slug> [--write] [--records-dir DIR] [--backup-dir DIR]
-  error_ledger.py score <slug> <YYYY-MM-DD> <fluency> <vocabulary> <grammar> <level> [talk_pct]
+  error_ledger.py score <slug> <YYYY-MM-DD> <fluency> <vocabulary> <grammar> <level> [talk_pct]   (half points allowed, e.g. 18.5)
   error_ledger.py history <slug>
   error_ledger.py phases <slug>
   error_ledger.py codes
@@ -16,7 +16,7 @@ Usage:
 review) and reports the error rate for each, because the two are not comparable. --phase-names
 names them (default "first part,second part"). --scores/--level/--talk-pct store the analyst's
 scores for the session; `score` stores them for an earlier session that has no tagged errors;
-`history` prints the Score History table; `phases` prints each code's rate per phase for every session, so open talk is compared with open talk. Every quote in errors.tsv must appear in the
+`history` prints the Score History table (with a three-recording average and the noise note) and a grammar check that compares each session's error rate with the provisional grammar anchor; `phases` prints each code's rate per phase for every session, so open talk is compared with open talk. Every quote in errors.tsv must appear in the
 transcript (ignoring case and punctuation) or the run stops; --allow-unmatched overrides that.
 
 errors.tsv has one error per line, tab separated:  CODE <TAB> mm:ss <TAB> quote <TAB> correction
@@ -256,6 +256,32 @@ def render_phases(led):
     return "\n".join(out)
 
 
+# Provisional grammar anchor: errors per 1,000 student words -> grammar score out of 25.
+# Calibrated on one B2 speaker (six recordings, 17 to 24 errors per 1,000 scored 14 to 15).
+# The analyst may move the score by up to 2 points for range and severity, and must say why.
+GRAMMAR_BANDS = [(5, 23), (10, 21), (15, 19), (20, 16.5), (25, 14.5), (30, 13), (40, 11), (float("inf"), 9)]
+NOISE = 3  # provisional: single scores of one speaker moved about 3 points between recordings
+
+
+def grammar_anchor(rate):
+    for top, score in GRAMMAR_BANDS:
+        if rate < top:
+            return score
+
+
+def fmt(x):
+    """18 -> '18', 18.5 -> '18.5'."""
+    return f"{x:g}"
+
+
+def parse_score(text):
+    """A category score out of 25 in whole or half points."""
+    x = float(text)
+    if not 0 <= x <= 25 or x * 2 != int(x * 2):
+        raise ValueError(text)
+    return int(x) if x == int(x) else x
+
+
 def set_scores(led, date, fluency, vocabulary, grammar, level, talk=None):
     total = round((fluency + vocabulary + grammar) / 75 * 100)
     row = {"date": date, "level": level, "fluency": fluency, "vocabulary": vocabulary,
@@ -268,11 +294,29 @@ def render_history(led):
     rows = sorted(led.get("scores", []), key=lambda r: r["date"])
     if not rows:
         return ""
-    out = ["| Date | Level | Fluency | Vocabulary | Grammar | Score | Student talk |", "|---|---|---|---|---|---|---|"]
-    for r in rows:
+    out = ["| Date | Level | Fluency | Vocabulary | Grammar | Score | Student talk | Average of last 3 |",
+           "|---|---|---|---|---|---|---|---|"]
+    for i, r in enumerate(rows):
         talk = f"{r['talk_pct']}%" if r.get("talk_pct") is not None else "n/a"
-        out.append(f"| {r['date']} | {r['level']} | {r['fluency']}/25 | {r['vocabulary']}/25 | "
-                   f"{r['grammar']}/25 | {r['total']}/100 | {talk} |")
+        last = [x["total"] for x in rows[max(0, i - 2):i + 1]]
+        avg = f"{sum(last) / len(last):.0f}" if len(last) == 3 else "n/a"
+        out.append(f"| {r['date']} | {r['level']} | {fmt(r['fluency'])}/25 | {fmt(r['vocabulary'])}/25 | "
+                   f"{fmt(r['grammar'])}/25 | {r['total']}/100 | {talk} | {avg} |")
+    out.append("")
+    out.append(f"Read each score as roughly plus or minus {NOISE}: a change smaller than {NOISE} points between two "
+               f"recordings is noise, so judge movement from the average of the last three. Pronunciation is not scored.")
+    sessions = {s["date"]: s for s in led.get("sessions", [])}
+    checks = []
+    for r in rows:
+        s = sessions.get(r["date"])
+        if s and s.get("words"):
+            rate = 1000 * sum(s["counts"].values()) / s["words"]
+            anchor = grammar_anchor(rate)
+            checks.append(f"| {r['date']} | {rate:.1f} | {fmt(anchor)}/25 | {fmt(r['grammar'])}/25 | "
+                          f"{fmt(r['grammar'] - anchor)} |")
+    if checks:
+        out += ["", "Grammar check (provisional bands from the error rate; move the score by more than 2 only with a reason):", "",
+                "| Date | Errors per 1,000 words | Grammar anchor | Grammar scored | Difference |", "|---|---|---|---|---|"] + checks
     return "\n".join(out) + "\n"
 
 
@@ -354,9 +398,9 @@ def main():
         led["sessions"].append(entry)
         if scores:
             try:
-                f, v, g = [int(x) for x in scores.split(",")]
+                f, v, g = [parse_score(x) for x in scores.split(",")]
             except ValueError:
-                sys.exit("--scores needs three whole numbers: fluency,vocabulary,grammar")
+                sys.exit("--scores needs three numbers from 0 to 25 in whole or half points: fluency,vocabulary,grammar")
             if not level:
                 sys.exit("--scores also needs --level (for example B1+)")
             set_scores(led, date, f, v, g, level, int(talk_pct) if talk_pct else None)
@@ -366,7 +410,11 @@ def main():
     elif cmd == "score":
         if len(a) not in (7, 8) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", a[2]):
             sys.exit(__doc__)
-        set_scores(led, a[2], int(a[3]), int(a[4]), int(a[5]), a[6], int(a[7]) if len(a) == 8 else None)
+        try:
+            f, v, g = parse_score(a[3]), parse_score(a[4]), parse_score(a[5])
+        except ValueError:
+            sys.exit("scores must be numbers from 0 to 25 in whole or half points")
+        set_scores(led, a[2], f, v, g, a[6], int(a[7]) if len(a) == 8 else None)
         os.makedirs(os.path.dirname(ledger_path), exist_ok=True)
         json.dump(led, open(ledger_path, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
         print(render_history(led))

@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.15.0")
+        self.assertEqual(data["version"], "2.16.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -614,7 +614,11 @@ class TestStudentAnalysisSkill(unittest.TestCase):
             hist = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "history", "maria",
                                    "--records-dir", tmp], capture_output=True, text=True)
             self.assertEqual(hist.returncode, 0, hist.stderr)
-            self.assertIn("| 2026-01-01 | B1+ | 18/25 | 15/25 | 14/25 | 63/100 | 45% |", hist.stdout)
+            self.assertIn("| 2026-01-01 | B1+ | 18/25 | 15/25 | 14/25 | 63/100 | 45% | n/a |", hist.stdout)
+            self.assertIn("plus or minus 3", hist.stdout)
+            self.assertIn("Pronunciation is not scored", hist.stdout)
+            self.assertIn("Grammar check", hist.stdout)
+            self.assertIn("| 2026-01-01 |", hist.stdout.split("Grammar check")[1])
             sc = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "score", "maria",
                                  "2025-12-01", "17", "14", "13", "B1", "--records-dir", tmp],
                                 capture_output=True, text=True)
@@ -625,6 +629,42 @@ class TestStudentAnalysisSkill(unittest.TestCase):
             self.assertEqual(ph.returncode, 0, ph.stderr)
             self.assertIn("### open", ph.stdout)
             self.assertIn("| All codes |", ph.stdout)
+
+    def test_half_point_scores_average_and_grammar_anchor(self):
+        ledger = [sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py")]
+        with tempfile.TemporaryDirectory() as tmp:
+            rows = (("2026-01-01", "18.5", "15", "14"), ("2026-01-08", "19", "15", "14.5"),
+                    ("2026-01-15", "19", "15.5", "14"))
+            for d, f, v, g in rows:
+                res = subprocess.run([*ledger, "score", "maria", d, f, v, g, "B1+", "40", "--records-dir", tmp],
+                                     capture_output=True, text=True)
+                self.assertEqual(res.returncode, 0, res.stderr)
+            hist = subprocess.run([*ledger, "history", "maria", "--records-dir", tmp], capture_output=True, text=True)
+            self.assertIn("| 18.5/25 |", hist.stdout)
+            self.assertIn("| 14.5/25 |", hist.stdout)
+            self.assertIn("| 2026-01-15 | B1+ | 19/25 | 15.5/25 | 14/25 | 65/100 | 40% | 64 |", hist.stdout)
+            bad = subprocess.run([*ledger, "score", "maria", "2026-01-22", "18.3", "15", "14", "B1+", "--records-dir", tmp],
+                                 capture_output=True, text=True)
+            self.assertNotEqual(bad.returncode, 0)
+            self.assertIn("half points", bad.stderr + bad.stdout)
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("error_ledger", SA_DIR / "scripts" / "error_ledger.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.assertEqual(mod.grammar_anchor(3), 23)
+        self.assertEqual(mod.grammar_anchor(22.4), 14.5)
+        self.assertEqual(mod.grammar_anchor(45), 9)
+        rubric = (SA_DIR / "references" / "scoring-rubric.md").read_text(encoding="utf-8")
+        for needle in ("half points", "plus or minus 3", "Grammar anchor from the error rate", "Task mix", "provisional"):
+            self.assertIn(needle, rubric)
+        for lo, score in ((5, 23), (10, 21), (15, 19), (20, 16.5), (25, 14.5), (30, 13), (40, 11)):
+            self.assertIn(f"| {score:g} |", rubric)
+
+    def test_one_pager_template_has_no_pronunciation_column(self):
+        text = (SA_DIR / "references" / "one-pager.md").read_text(encoding="utf-8")
+        template = text.split("## Template")[1].split("## Rules")[0]
+        self.assertNotIn("Pronunciation", template)
+        self.assertIn("| Fluency | Vocabulary | Grammar |", template)
 
     def test_report_builder(self):
         try:

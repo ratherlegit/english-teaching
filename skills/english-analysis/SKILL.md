@@ -60,7 +60,7 @@ Write the file following `references/record-format.md` (exact turn format, relia
 Then pick the time the lesson changes mode (for example open conversation ends and tutor-led review begins; read the transcript to find it) and run `python3 -I scripts/tutor_stats.py <transcript.md> <StudentName> --split <mm:ss>`. It gives the student's share, the tutor's long explanations and the tutor's question yield for the whole lesson and each part. Open talk and tutor-led review produce very different error rates, so keep the split time for step 8. The tutor tips in the lesson report come from this output (see `references/tutor-tips.md`).
 
 ### 7. Score and analyze (Read: references/scoring-rubric.md)
-Give a CEFR level with half-steps (for example B1+) and a score out of 100 built from fluency, vocabulary and grammar, each out of 25, using the rubric and its anchor rows so scores stay consistent across students. Never a letter grade. Pronunciation is not scored.
+Give a CEFR level with half-steps (for example B1+) and a score out of 100 built from fluency, vocabulary and grammar, each out of 25 in whole or half points, using the rubric and its anchor rows so scores stay consistent across students. Tag the errors first, then start the grammar score from the error-rate anchor in the rubric (tag count divided by student words from talk_stats, per 1,000) and explain any move of more than 2 points; `error_ledger.py history` prints the check after step 8. Note the task mix of the session. Treat every score as plus or minus 3 and judge movement from the average of the last three. Never a letter grade. Pronunciation is not scored and is not shown in score tables.
 
 For vocabulary recall, take every earlier-lesson word the tutor reviewed and look each up in the Vocabulary Log. Mark it solid, partial or re-taught, with the date it was first logged. Look for the pattern (for example, words tied to the student's work stick, abstract ones fade).
 
@@ -79,7 +79,7 @@ If the ledger has fewer than two tagged sessions and earlier labeled transcripts
 
 Then append the Analysis section and update the Learning Path and Vocabulary Log as described in `references/record-format.md`. Do not change the profile level without the tutor's agreement. Verify the edits by grepping the new lines.
 
-Report to the tutor: level and score with the three parts, the top strengths and areas to improve, talk-time share, and the file paths written. State what is uncertain: speaker labels, machine-corrected errors, recording conditions, single-session estimate.
+Report to the tutor: level and score with the three parts, the last-three average and whether the change is inside the plus or minus 3 band, the task mix, the top strengths and areas to improve, talk-time share, and the file paths written. State what is uncertain: speaker labels, machine-corrected errors, recording conditions, single-session estimate.
 
 ### 9. Build the one-pager (Write, then scripts/one_pager_docx.py)
 Follow `references/one-pager.md`. Write `~/eng-teaching-records/one-pagers/<slug>-one-pager.md` from the Analysis section just saved, then `python3 scripts/one_pager_docx.py <md> <docx>` (plain python3, not -I). The script refuses a page over the length budget; cut bullets and run again. Tell the tutor the file paths. The tutor can also ask for a one-pager at any time with no new recording: read the latest Analysis section and profile, and say so if there is no analysis yet.

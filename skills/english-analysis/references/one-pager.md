@@ -14,24 +14,24 @@ Build it right after an analysis (workflow step 8), or on request ("one-pager fo
 
 ## Content and order
 1. Title: `# <Name>: One-Page Summary`
-2. Subtitle line: level, score /100, date of the latest analysis, and how many recordings it rests on
-3. Score table: Fluency, Vocabulary, Grammar (each /25), Pronunciation (not scored)
+2. Subtitle line: level, score /100 (with the average of the last three recordings once there are three), date of the latest analysis, and how many recordings it rests on
+3. Score table: Fluency, Vocabulary, Grammar (each /25, half points allowed). Do not add a Pronunciation column; pronunciation is not scored
 4. **Snapshot**: one or two lines from the profile (job or study, goal, interests, home language patterns, session length, tutor preferences such as light grammar)
 5. **Strengths**: 3 bullets, each with a quoted example or a concrete observation
 6. **Work on next**: top 3 error patterns, each with a quoted example and the fix in plain words
 7. **Vocabulary check**: one line each for solid, needs a hint, re-teach (omit if the lesson did no review)
 8. **Talk time**: one line with a bar, for example `Student ■■■■■■■□□□□□□□□□□□□□ 38% | Tutor 62%` (20 squares in total, filled squares = student percentage rounded to the nearest 5%)
 9. **Next lesson focus**: 3 bullets that follow the profile's tutor preferences
-10. **Confidence**: one line (single recording, recording conditions, labels inferred)
+10. **Confidence**: one line (single recording, recording conditions, labels inferred, and the task mix when it was not like-for-like, for example a prepared monologue)
 
 ## Template
 ```
 # Maria: One-Page Summary
-*Level B1+ | Score 63/100 | Updated 2026-10-28 | Based on 2 recordings*
+*Level B1+ | Score 63/100 (last-3 average 62, differences under 3 are noise) | Updated 2026-10-28 | Based on 3 recordings*
 
-| Fluency | Vocabulary | Grammar | Pronunciation |
-|---|---|---|---|
-| 18/25 | 15/25 | 14/25 | Not scored |
+| Fluency | Vocabulary | Grammar |
+|---|---|---|
+| 18/25 | 15/25 | 14/25 |
 
 ## Snapshot
 Works in logistics, goal is meetings in English. Prefers light grammar.
