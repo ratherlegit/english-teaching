@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student performance dashboard</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1c2230;--mute:#5d6678;--line:#dde1e8;--grid:#e8ebf0;--accent:#2a6fdb;--good:#17805a;--bad:#c2410c}
+@media (prefers-color-scheme:dark){:root{--bg:#12151c;--card:#1b2029;--ink:#e8ebf2;--mute:#9aa4b6;--line:#2c3340;--grid:#262c38;--accent:#6aa0ff;--good:#4cc79a;--bad:#ff9b63}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;padding:18px 28px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+h1{font-size:19px;margin:0}
+h2{font-size:16px;margin:0 0 4px}
+label{font-size:13px;color:var(--mute);margin-right:8px}
+select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:200px}
+main{max-width:1180px;margin:0 auto;padding:22px 28px 60px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi,.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.kpi .v{font-size:26px;font-weight:650;line-height:1.15}
+.kpi .l{font-size:12px;color:var(--mute);text-transform:none}
+.kpi .s{font-size:12px;color:var(--mute);margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(480px,1fr));gap:16px;margin-bottom:16px}
+@media (max-width:560px){.grid{grid-template-columns:1fr}main{padding:16px}}
+.note{font-size:12.5px;color:var(--mute);margin:0 0 8px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;margin:6px 0 0}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:11px;height:3px;border-radius:2px;display:inline-block}
+svg{width:100%;height:auto;display:block;overflow:visible}
+svg text{fill:var(--mute);font-size:11px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--grid)}
+th{font-size:12px;color:var(--mute);font-weight:600}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr{cursor:pointer}tbody tr:hover{background:var(--bg)}
+.up{color:var(--good)}.down{color:var(--bad)}
+.ex{margin:0;padding:0;list-style:none;font-size:14px}
+.ex li{padding:8px 0;border-bottom:1px solid var(--grid)}
+.ex .d{font-size:12px;color:var(--mute)}
+.ex .q{font-style:italic}.ex .c{color:var(--good)}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);padding:6px 9px;border-radius:7px;font-size:12.5px;display:none;z-index:20;max-width:260px;white-space:pre-line}
+.empty{color:var(--mute);font-size:14px;padding:18px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>Student performance</h1>
+  <div><label for="who">View</label><select id="who"></select></div>
+</header>
+<main id="main"></main>
+<div id="tip"></div>
+<script>
+"use strict";
+const DATA = /*__DATA__*/null;
+const COLORS = ["#2a6fdb","#e07b00","#1a9e6f","#c2379b","#7a5af8","#b8860b","#0891b2","#d9423e"];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const tip = $("tip");
+
+function el(tag, attrs, kids) {
+  const e = document.createElement(tag);
+  for (const k in (attrs || {})) { if (k === "text") e.textContent = attrs[k]; else e.setAttribute(k, attrs[k]); }
+  (kids || []).forEach(c => e.appendChild(c));
+  return e;
+}
+function sv(tag, attrs, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in (attrs || {})) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  return e;
+}
+const t = d => Date.parse(d + "T00:00:00Z");
+const fmtDate = d => { const p = d.split("-"); return MONTHS[+p[1] - 1] + " " + (+p[2]); };
+const fmtDateY = d => fmtDate(d) + " " + d.slice(0, 4);
+const round1 = x => x == null ? "n/a" : (Math.round(x * 10) / 10).toString();
+const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+const last = a => a[a.length - 1];
+const prev = a => a[a.length - 2];
+
+function showTip(ev, msg) {
+  tip.textContent = msg; tip.style.display = "block";
+  const x = Math.min(ev.clientX + 14, window.innerWidth - 270);
+  tip.style.left = x + "px"; tip.style.top = (ev.clientY + 14) + "px";
+}
+function hideTip() { tip.style.display = "none"; }
+
+/* series: [{name, color, dash, points:[{date, y, tip}]}] */
+function lineChart(series, o) {
+  o = o || {};
+  const W = 560, H = o.height || 260, L = 40, R = 16, T = 12, B = 28;
+  const pts = series.flatMap(s => s.points);
+  if (!pts.length) return el("div", { class: "empty", text: "No data yet." });
+  let xs = pts.map(p => t(p.date)), x0 = Math.min(...xs), x1 = Math.max(...xs);
+  if (x0 === x1) { x0 -= 864e5 * 3; x1 += 864e5 * 3; }
+  let y0 = o.yMin != null ? o.yMin : 0, y1 = o.yMax;
+  if (y1 == null) { y1 = Math.max(...pts.map(p => p.y)) * 1.15; y1 = Math.max(y1, 1); }
+  const X = v => L + (v - x0) / (x1 - x0) * (W - L - R);
+  const Y = v => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.label || "chart" });
+  const ticks = o.yTicks || 5;
+  for (let i = 0; i <= ticks; i++) {
+    const v = y0 + (y1 - y0) * i / ticks, y = Y(v);
+    svg.appendChild(sv("line", { x1: L, x2: W - R, y1: y, y2: y, stroke: "var(--grid)" }));
+    svg.appendChild(sv("text", { x: L - 6, y: y + 4, "text-anchor": "end" }, round1(v)));
+  }
+  const n = x1 - x0 < 864e5 * 8 ? Math.round((x1 - x0) / 864e5) / 2 + 1 : 5;
+  const seen = new Set();
+  for (let i = 0; i < n; i++) {
+    const v = x0 + (x1 - x0) * i / Math.max(n - 1, 1);
+    const d = new Date(v).toISOString().slice(0, 10);
+    if (seen.has(d)) continue; seen.add(d);
+    svg.appendChild(sv("text", { x: X(v), y: H - 8, "text-anchor": i === 0 ? "start" : i === n - 1 ? "end" : "middle" }, fmtDate(d)));
+  }
+  if (o.band) {
+    const [lo, hi] = o.band;
+    svg.appendChild(sv("rect", { x: L, width: W - L - R, y: Y(hi), height: Math.max(0, Y(lo) - Y(hi)), fill: "var(--accent)", opacity: 0.1 }));
+  }
+  series.forEach(s => {
+    if (!s.points.length) return;
+    const sorted = s.points.slice().sort((a, b) => t(a.date) - t(b.date));
+    const d = sorted.map((p, i) => (i ? "L" : "M") + X(t(p.date)).toFixed(1) + " " + Y(p.y).toFixed(1)).join("");
+    const path = sv("path", { d, fill: "none", stroke: s.color, "stroke-width": 2.2, "stroke-linejoin": "round", "stroke-linecap": "round" });
+    if (s.dash) path.setAttribute("stroke-dasharray", s.dash);
+    svg.appendChild(path);
+    sorted.forEach(p => {
+      const g = sv("g");
+      g.appendChild(sv("circle", { cx: X(t(p.date)), cy: Y(p.y), r: 3.6, fill: s.color }));
+      const hit = sv("circle", { cx: X(t(p.date)), cy: Y(p.y), r: 11, fill: "transparent" });
+      const msg = (s.name ? s.name + "\n" : "") + fmtDateY(p.date) + "\n" + (p.tip || round1(p.y));
+      hit.addEventListener("pointermove", ev => showTip(ev, msg));
+      hit.addEventListener("pointerleave", hideTip);
+      g.appendChild(hit); svg.appendChild(g);
+    });
+  });
+  return svg;
+}
+
+function legend(series) {
+  return el("div", { class: "legend" }, series.map(s => {
+    const i = el("i"); i.style.background = s.color;
+    return el("span", {}, [i, document.createTextNode(s.name)]);
+  }));
+}
+function card(title, note, body, leg) {
+  const c = el("div", { class: "card" }, [el("h2", { text: title })]);
+  if (note) c.appendChild(el("p", { class: "note", text: note }));
+  c.appendChild(body);
+  if (leg) c.appendChild(leg);
+  return c;
+}
+function kpi(label, value, sub, cls) {
+  const v = el("div", { class: "v " + (cls || ""), text: value });
+  return el("div", { class: "kpi" }, [el("div", { class: "l", text: label }), v, el("div", { class: "s", text: sub || "" })]);
+}
+
+/* ---- derived numbers ---- */
+function summary(s) {
+  const sc = s.scores, ss = s.sessions;
+  const tot = sc.map(x => x.total);
+  const l3 = tot.length ? mean(tot.slice(-3)) : null;
+  const tp = sc.filter(x => x.talk_pct != null);
+  const lastSession = ss.length ? last(ss) : null;
+  return {
+    level: sc.length ? (last(sc).level || s.profile_level) : s.profile_level,
+    total: tot.length ? last(tot) : null,
+    delta: tot.length > 1 ? last(tot) - prev(tot) : null,
+    l3, talk: tp.length ? last(tp).talk_pct : null,
+    rate: lastSession ? lastSession.rate : null,
+    lessons: Math.max(ss.length, sc.length),
+    lastDate: [ss.length ? last(ss).date : "", sc.length ? last(sc).date : ""].sort().pop()
+  };
+}
+function deltaText(d) {
+  if (d == null) return { text: "n/a", cls: "" };
+  const r = Math.round(d * 10) / 10;
+  return { text: (r > 0 ? "+" : "") + r, cls: r > 0 ? "up" : r < 0 ? "down" : "" };
+}
+
+/* ---- views ---- */
+function overview(main) {
+  const S = DATA.students;
+  const kp = el("div", { class: "kpis" }, [
+    kpi("Students", String(S.length), "with saved ledgers"),
+    kpi("Lessons analysed", String(S.reduce((a, s) => a + summary(s).lessons, 0)), "across all students")
+  ]);
+  main.appendChild(kp);
+  const scoreSeries = S.map((s, i) => ({ name: s.name, color: COLORS[i % COLORS.length],
+    points: s.scores.map(x => ({ date: x.date, y: x.total, tip: x.total + " (" + x.level + ")" })) })).filter(s => s.points.length);
+  const rateSeries = S.map((s, i) => ({ name: s.name, color: COLORS[i % COLORS.length],
+    points: s.sessions.filter(x => x.rate != null).map(x => ({ date: x.date, y: x.rate, tip: x.rate + " errors per 1,000 words" })) })).filter(s => s.points.length);
+  const g = el("div", { class: "grid" }, [
+    card("Total score over time", "Out of 100. Treat each score as plus or minus 3.", lineChart(scoreSeries, { yMin: 40, yMax: 100, yTicks: 6, label: "Total score by student" }), legend(scoreSeries)),
+    card("Grammar and word-choice errors", "Tagged errors per 1,000 student words. Lower is better.", lineChart(rateSeries, { label: "Error rate by student" }), legend(rateSeries))
+  ]);
+  main.appendChild(g);
+
+  const tb = el("tbody");
+  S.forEach(s => {
+    const m = summary(s), d = deltaText(m.delta);
+    const tr = el("tr", { tabindex: "0" }, [
+      el("td", { text: s.name }), el("td", { text: m.level || "n/a" }),
+      el("td", { class: "n", text: m.total == null ? "n/a" : round1(m.total) }),
+      el("td", { class: "n", text: m.l3 == null ? "n/a" : round1(m.l3) }),
+      el("td", { class: "n " + d.cls, text: d.text }),
+      el("td", { class: "n", text: m.talk == null ? "n/a" : m.talk + "%" }),
+      el("td", { class: "n", text: round1(m.rate) }),
+      el("td", { class: "n", text: String(m.lessons) }),
+      el("td", { text: m.lastDate ? fmtDateY(m.lastDate) : "n/a" })]);
+    const go = () => { $("who").value = s.slug; render(); };
+    tr.addEventListener("click", go);
+    tr.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+    tb.appendChild(tr);
+  });
+  const th = ["Student","Level","Latest","Last 3 avg","Change","Talk share","Errors/1,000","Lessons","Last lesson"].map((h, i) =>
+    el("th", { class: i > 1 && i < 8 ? "n" : "", text: h }));
+  const tbl = el("table", {}, [el("thead", {}, [el("tr", {}, th)]), tb]);
+  main.appendChild(card("All students", "Select a row, or use the list at the top, to focus on one student.", tbl));
+}
+
+function studentView(main, s) {
+  const m = summary(s), d = deltaText(m.delta);
+  main.appendChild(el("div", { class: "kpis" }, [
+    kpi("Level", m.level || "n/a", s.profile_level && s.profile_level !== m.level ? "profile says " + s.profile_level : "latest analysis"),
+    kpi("Latest score", m.total == null ? "n/a" : round1(m.total), d.text + " vs previous", d.cls),
+    kpi("Last 3 average", m.l3 == null ? "n/a" : round1(m.l3), "judge movement here"),
+    kpi("Talk share", m.talk == null ? "n/a" : m.talk + "%", "student's share, latest"),
+    kpi("Errors per 1,000", round1(m.rate), "latest tagged lesson")
+  ]));
+
+  const sc = s.scores;
+  const band = sc.length ? [Math.max(0, mean(sc.slice(-3).map(x => x.total)) - 3), mean(sc.slice(-3).map(x => x.total)) + 3] : null;
+  const total = [{ name: "Total", color: COLORS[0], points: sc.map(x => ({ date: x.date, y: x.total, tip: x.total + " (" + x.level + ")" })) }];
+  const parts = [["fluency", "Fluency", COLORS[0]], ["vocabulary", "Vocabulary", COLORS[1]], ["grammar", "Grammar", COLORS[2]]]
+    .map(([k, n, c]) => ({ name: n, color: c, points: sc.map(x => ({ date: x.date, y: x[k], tip: x[k] + " / 25" })) }));
+  main.appendChild(el("div", { class: "grid" }, [
+    card("Total score", "Shaded band is the last-3 average plus or minus 3, the normal noise for one score.", lineChart(total, { yMin: 40, yMax: 100, yTicks: 6, band, label: "Total score" })),
+    card("Score parts", "Each part is out of 25.", lineChart(parts, { yMin: 0, yMax: 25, label: "Fluency, vocabulary and grammar" }), legend(parts))
+  ]));
+
+  const ss = s.sessions;
+  const phaseNames = (ss.find(x => x.phases) || {}).phases;
+  const rateS = [{ name: "All speech", color: COLORS[0], points: ss.filter(x => x.rate != null).map(x => ({ date: x.date, y: x.rate, tip: x.rate + " per 1,000 words (" + x.errors + " errors, " + x.words + " words)" })) }];
+  if (phaseNames) {
+    [0, 1].forEach(i => rateS.push({ name: phaseNames.names[i], color: COLORS[i + 1], dash: i ? "5 4" : null,
+      points: ss.filter(x => x.phases && x.phases.rates[i] != null).map(x => ({ date: x.date, y: x.phases.rates[i], tip: x.phases.rates[i] + " per 1,000 words in " + x.phases.names[i] })) }));
+  }
+  const codesLatest = ss.length ? Object.entries(last(ss).rates).filter(e => e[1] != null).sort((a, b) => b[1] - a[1]) : [];
+  const bars = barChart(codesLatest.slice(0, 10));
+
+  main.appendChild(el("div", { class: "grid" }, [
+    card("Error rate by lesson", "Open conversation and tutor-led review give very different rates, so compare like with like.", lineChart(rateS, { label: "Error rate per lesson" }), legend(rateS)),
+    card("Top error codes, latest lesson", ss.length ? "Per 1,000 student words, " + fmtDateY(last(ss).date) + "." : "", bars)
+  ]));
+
+  main.appendChild(codeExplorer(s));
+}
+
+function barChart(rows) {
+  if (!rows.length) return el("div", { class: "empty", text: "No tagged errors yet." });
+  const W = 560, rowH = 26, L = 150, R = 50, H = rows.length * rowH + 6;
+  const max = Math.max(...rows.map(r => r[1]), 1);
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Error codes" });
+  rows.forEach(([code, v], i) => {
+    const y = i * rowH + 3, w = (W - L - R) * v / max;
+    svg.appendChild(sv("text", { x: L - 8, y: y + 15, "text-anchor": "end" }, code));
+    const r = sv("rect", { x: L, y: y + 3, width: Math.max(w, 2), height: 16, rx: 3, fill: COLORS[0] });
+    const msg = code + ": " + (DATA.codes[code] || "") + "\n" + v + " per 1,000 words";
+    r.addEventListener("pointermove", ev => showTip(ev, msg)); r.addEventListener("pointerleave", hideTip);
+    svg.appendChild(r);
+    svg.appendChild(sv("text", { x: L + w + 6, y: y + 15 }, round1(v)));
+  });
+  return svg;
+}
+
+function codeExplorer(s) {
+  const used = Object.keys(DATA.codes).filter(c => s.sessions.some(x => (x.rates[c] || 0) > 0));
+  const wrap = el("div", { class: "card" }, [el("h2", { text: "One error code over time" })]);
+  if (!used.length) { wrap.appendChild(el("div", { class: "empty", text: "No tagged errors yet." })); return wrap; }
+  const sel = el("select", { id: "code", "aria-label": "Error code" });
+  used.sort((a, b) => (last(s.sessions).rates[b] || 0) - (last(s.sessions).rates[a] || 0));
+  used.forEach(c => sel.appendChild(el("option", { value: c, text: c + ": " + DATA.codes[c] })));
+  const body = el("div");
+  const draw = () => {
+    const c = sel.value;
+    body.textContent = "";
+    const pts = s.sessions.map(x => ({ date: x.date, y: x.rates[c] || 0, tip: (x.rates[c] || 0) + " per 1,000 words" }));
+    const ex = el("ul", { class: "ex" });
+    s.sessions.slice().reverse().forEach(x => (x.examples[c] || []).slice(0, 3).forEach(e => {
+      ex.appendChild(el("li", {}, [el("div", { class: "d", text: fmtDateY(x.date) + (e[0] ? " at " + e[0] : "") }),
+        el("div", { class: "q", text: "“" + e[1] + "”" }), el("div", { class: "c", text: "Better: " + e[2] })]));
+    }));
+    body.appendChild(el("div", { class: "grid" }, [
+      el("div", {}, [lineChart([{ name: c, color: COLORS[3], points: pts }], { label: c + " rate" })]),
+      el("div", {}, [el("p", { class: "note", text: "Recent examples" }), ex.children.length ? ex : el("div", { class: "empty", text: "No examples saved." })])
+    ]));
+  };
+  sel.addEventListener("change", draw);
+  wrap.appendChild(el("p", { class: "note", text: "Pick a code to see its rate per 1,000 words and recent examples." }));
+  wrap.appendChild(sel); wrap.appendChild(body);
+  draw();
+  return wrap;
+}
+
+function render() {
+  const main = $("main"); main.textContent = ""; hideTip();
+  const v = $("who").value;
+  if (v === "__all") overview(main);
+  else studentView(main, DATA.students.find(s => s.slug === v));
+  history.replaceState(null, "", "#" + encodeURIComponent(v));
+}
+
+(function init() {
+  const who = $("who");
+  who.appendChild(el("option", { value: "__all", text: "All students" }));
+  DATA.students.forEach(s => who.appendChild(el("option", { value: s.slug, text: s.name })));
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (DATA.students.some(s => s.slug === h)) who.value = h;
+  who.addEventListener("change", render);
+  render();
+})();
+</script>
+</body>
+</html>

@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.18.1")
+        self.assertEqual(data["version"], "2.19.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -756,6 +756,68 @@ class TestStudentAnalysisSkill(unittest.TestCase):
     def test_transcribe_accepts_glossary(self):
         self.assertIn("--glossary", read(SA_DIR / "scripts" / "transcribe.py"))
         self.assertIn("--glossary", read(SA_MD))
+
+
+DB_DIR = ROOT / "skills" / "english-dashboard"
+DB_MD = DB_DIR / "SKILL.md"
+
+
+class TestDashboardSkill(unittest.TestCase):
+    def test_frontmatter_and_files(self):
+        fm = frontmatter(read(DB_MD))
+        self.assertEqual(fm.get("name"), "english-dashboard")
+        self.assertEqual(set(fm), {"name", "description"})
+        self.assertLessEqual(len(fm["description"]), 1026)
+        text = read(DB_MD)
+        for ref in re.findall(r"`(scripts/[\w.-]+)`", text):
+            self.assertTrue((DB_DIR / ref).exists(), ref)
+
+    def test_no_em_dashes_no_student_data_no_local_paths(self):
+        for path in DB_DIR.rglob("*"):
+            if path.is_file() and path.suffix in {".md", ".py", ".html"}:
+                text = read(path)
+                self.assertNotIn(EM_DASH, text, str(path))
+                self.assertNotIn("/Users/", text, str(path))
+                for name in ("jay" + "den", "ole" + "na"):
+                    self.assertNotIn(name, text.lower(), str(path))
+
+    def test_page_has_no_network_and_no_html_injection(self):
+        page = read(DB_DIR / "scripts" / "dashboard_template.html")
+        page = page.replace("http://www.w3.org/2000/svg", "")  # SVG namespace id, not a request
+        self.assertIn("default-src 'none'", page)
+        for bad in ("innerHTML", "outerHTML", "insertAdjacentHTML", "document.write", "eval(", "fetch(", "XMLHttpRequest", "http://", "https://"):
+            self.assertNotIn(bad, page, bad)
+
+    def test_codes_match_error_ledger(self):
+        import importlib.util
+        def load(path, name):
+            spec = importlib.util.spec_from_file_location(name, path)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            return mod
+        ledger = load(SA_DIR / "scripts" / "error_ledger.py", "error_ledger_t")
+        dash = load(DB_DIR / "scripts" / "build_dashboard.py", "build_dashboard_t")
+        self.assertEqual(set(ledger.CODES), set(dash.CODES))
+
+    def test_build_end_to_end_escapes_data(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            rec = Path(tmp)
+            (rec / "error-ledgers").mkdir()
+            (rec / "bob.md").write_text("# Student Record \u2014 Bob</script>\n- Level: B1\n", encoding="utf-8")
+            ledger = {"student": "bob", "sessions": [{"date": "2026-01-02", "words": 1000, "counts": {"ART": 3, "NOPE": 9},
+                      "examples": {"ART": [["00:10", "</script><b>x</b>", "fix"]]}}],
+                      "scores": [{"date": "2026-01-02", "level": "B1", "fluency": 15, "vocabulary": 15, "grammar": 15, "total": 45, "talk_pct": 40}]}
+            (rec / "error-ledgers" / "bob.json").write_text(json.dumps(ledger), encoding="utf-8")
+            (rec / "error-ledgers" / "Bad Name.json").write_text("{}", encoding="utf-8")
+            out = rec / "dashboard" / "dashboard.html"
+            run = subprocess.run([sys.executable, "-I", str(DB_DIR / "scripts" / "build_dashboard.py"),
+                                  "--records-dir", str(rec)], capture_output=True, text=True)
+            self.assertEqual(run.returncode, 0, run.stderr)
+            self.assertIn("Bad Name.json", run.stderr)
+            html = read(out)
+            self.assertEqual(html.count("</script>"), 1)
+            self.assertNotIn("NOPE", html)
+            self.assertEqual(oct(out.stat().st_mode & 0o777), "0o600")
 
 
 if __name__ == "__main__":

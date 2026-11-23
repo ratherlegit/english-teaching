@@ -1,6 +1,6 @@
 # english-teaching
 
-**Planning, homework and lesson-review assistants for English teachers, in one install.** Four skills cover the full teaching loop: plan the lesson, teach it, analyze what the student actually said, then write homework that targets what they got wrong.
+**Planning, homework and lesson-review assistants for English teachers, in one install.** Five skills cover the full teaching loop: plan the lesson, teach it, analyze what the student actually said, write homework that targets what they got wrong, and see every student's progress on one dashboard.
 
 | Skill | Use it when | You get |
 |---|---|---|
@@ -9,7 +9,7 @@
 | **english-worksheet** | A student needs homework | Worksheets and an answer key built from that student's real errors |
 | **english-analysis** | You recorded a lesson | A transcript, a CEFR level and score, a record update, and Word reports |
 
-All four are fast first drafts, not replacements for your judgment. Every activity, question, score and note is meant to be reviewed, edited, or swapped. Each skill points to the others when a request fits one better.
+All five are fast first drafts, not replacements for your judgment. Every activity, question, score and note is meant to be reviewed, edited, or swapped. Each skill points to the others when a request fits one better.
 
 ## english-tutoring: lessons for one student
 
@@ -98,7 +98,7 @@ All four are fast first drafts, not replacements for your judgment. Every activi
 - Student sentences stay in your private record: lessons and worksheets get new sentences with the same kind of error
 - Level changes are your decision: the skill reports whether a recording supports the current level and leaves the profile alone until you agree
 
-## Shared by all four skills
+## Shared by all five skills
 
 - American English by default, British on request
 - Word banks and matching columns are never in the same order as the items
@@ -132,7 +132,7 @@ claude plugin marketplace add ratherlegit/english-teaching
 claude plugin install english-teaching@english-teaching
 ```
 
-Then ask in plain English, for example *"Plan a B1 speaking lesson for my student Maria"* or *"Plan a lesson for my class of 12 B1 teens."* To invoke a skill explicitly: `/english-teaching:english-tutoring`, `/english-teaching:english-classroom`, `/english-teaching:english-worksheet`, or `/english-teaching:english-analysis`.
+Then ask in plain English, for example *"Plan a B1 speaking lesson for my student Maria"* or *"Plan a lesson for my class of 12 B1 teens."* To invoke a skill explicitly: `/english-teaching:english-tutoring`, `/english-teaching:english-classroom`, `/english-teaching:english-worksheet`, or `/english-teaching:english-analysis`, or `/english-teaching:english-dashboard`.
 
 If you installed the older standalone `english-tutoring` or `english-classroom` plugins, uninstall them first so you do not get duplicates.
 
