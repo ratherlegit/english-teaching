@@ -27,10 +27,10 @@ this script only does the counting, trend rules and table rendering.
 The ledger lives in <records-dir>/error-ledgers/<slug>.json (one entry per session date;
 adding the same date again replaces it). With --write the rendered "## Error Tracker" section
 is put into <records-dir>/<slug>.md (replaced if present, otherwise inserted before the first
-"## Analysis" heading, otherwise appended), after copying the record to --backup-dir.
+"## Analysis" heading, otherwise appended), after copying the record to --backup-dir (default <records-dir>/.backups, owner-only).
 Run with `python3 -I`.
 """
-import json, os, re, shutil, sys, tempfile
+import json, os, re, shutil, sys
 
 # code: (short name, impact on understanding 1-3)
 CODES = {
@@ -55,7 +55,17 @@ MIN_TOTAL = 3      # fewer tagged instances than this across all sessions is noi
 CHANGE = 0.30      # relative change that counts as a real move
 
 
+SLUG_RE = re.compile(r"[a-z0-9][a-z0-9_-]{0,63}")
+
+
+def check_slug(slug):
+    if not SLUG_RE.fullmatch(slug):
+        sys.exit(f"bad student slug {slug!r}: use lowercase letters, digits, - and _ only")
+    return slug
+
+
 def paths(records, slug):
+    check_slug(slug)
     return (os.path.join(records, "error-ledgers", slug + ".json"),
             os.path.join(records, slug + ".md"))
 
@@ -322,7 +332,7 @@ def render_history(led):
 
 def write_section(rec, section, backup_dir):
     text = open(rec, encoding="utf-8").read()
-    os.makedirs(backup_dir, exist_ok=True)
+    os.makedirs(backup_dir, mode=0o700, exist_ok=True)  # student data: owner-only
     shutil.copy2(rec, os.path.join(backup_dir, os.path.basename(rec) + ".before-error-tracker"))
     pat = re.compile(r"^## Error Tracker\n.*?(?=^## |\Z)", re.S | re.M)
     if pat.search(text):
@@ -353,7 +363,7 @@ def main():
     if write:
         a.remove("--write")
     records = os.path.expanduser(flag(a, "--records-dir", "~/eng-teaching-records"))
-    backup = os.path.expanduser(flag(a, "--backup-dir", tempfile.gettempdir()))
+    backup = os.path.expanduser(flag(a, "--backup-dir", os.path.join(records, ".backups")))
     tutor = flag(a, "--tutor", "Tutor")
     label = flag(a, "--label", "")
     split = flag(a, "--split")

@@ -1,0 +1,4 @@
+# Install once (needs network): pip install -r requirements.txt
+# Pinned to the versions this skill was tested with.
+faster-whisper==1.2.1
+python-docx==1.2.0
