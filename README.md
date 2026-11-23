@@ -8,6 +8,7 @@
 | **english-classroom** | You teach a group | Lesson plans with Support, Core and Stretch versions of every activity |
 | **english-worksheet** | A student needs homework | Worksheets and an answer key built from that student's real errors |
 | **english-analysis** | You recorded a lesson | A transcript, a CEFR level and score, a record update, and Word reports |
+| **english-dashboard** | You want to see how your students are doing | One interactive page: every student at a glance, or one student in detail, with score and error trends |
 
 All five are fast first drafts, not replacements for your judgment. Every activity, question, score and note is meant to be reviewed, edited, or swapped. Each skill points to the others when a request fits one better.
 
@@ -98,6 +99,24 @@ All five are fast first drafts, not replacements for your judgment. Every activi
 - Student sentences stay in your private record: lessons and worksheets get new sentences with the same kind of error
 - Level changes are your decision: the skill reports whether a recording supports the current level and leaves the profile alone until you agree
 
+## english-dashboard: see every student's progress in one page
+
+**The problem.** english-analysis saves scores and error counts lesson after lesson, but they sit in separate files. To see whether a student is improving, or which student needs attention, you would have to reread each record and compare the numbers by hand.
+
+**What it does**
+- Reads the ledgers english-analysis already saved (`~/eng-teaching-records/error-ledgers/`) and builds one self-contained HTML file, `~/eng-teaching-records/dashboard/dashboard.html`, that you open in any browser
+- **All students view**: total score over time for every student, error rate over time, and a table with level, latest score, last-3 average, change since the last lesson, talk share, errors per 1,000 words and last lesson date. Click a row to focus on that student
+- **One student view**, chosen from a list at the top: level, latest score and last-3 average, a total-score chart with a shaded plus or minus 3 band, fluency, vocabulary and grammar lines, error rate per lesson with open conversation and tutor-led review shown separately, the top error codes of the latest lesson, and a code picker that shows one code's trend with recent examples
+- Hover over any point or bar for the exact value and date
+- Follows the same cautions as english-analysis: every score is plus or minus 3, so judge movement from the last-3 average
+- Read-only: it never changes a record, ledger or transcript, and you refresh it by building it again after new lessons
+
+**Why it helps**
+- You see at a glance who is improving, who has stalled and where each student's errors are concentrated, instead of reading each record in turn
+- The charts show trends that single lesson reports cannot, such as a code that keeps coming back
+- Student data stays private: the page makes no network requests (a Content-Security-Policy blocks them), loads no outside library or font, and shows student text as plain text only. It is a local file with owner-only permissions, in the records folder that git does not track
+- It needs no recording and no extra install: standard-library Python only
+
 ## Shared by all five skills
 
 - American English by default, British on request
@@ -159,7 +178,7 @@ Every lesson plan, handout, path table, and the tutor-only one-page summary can 
 
 ## Where your information is kept
 
-Student profiles and the tutor profile (`_tutor.md`) live in `~/eng-teaching-records/`, class records in `~/eng-teaching-records/classes/`, and worksheet profiles and logs in `~/eng-teaching-records/worksheets/`, outside the skill folders so they survive updates. The worksheet skill reads a student's tutoring record, including its latest Analysis section, but never changes it. One-page student summaries live in `~/eng-teaching-records/one-pagers/`. Lesson transcripts live in `~/eng-teaching-records/transcripts/`, and the analysis skill adds an Analysis section to the student's tutoring record. Analysis needs Python 3 with `faster-whisper` and `ffmpeg` installed (`pip install faster-whisper`).
+Student profiles and the tutor profile (`_tutor.md`) live in `~/eng-teaching-records/`, class records in `~/eng-teaching-records/classes/`, and worksheet profiles and logs in `~/eng-teaching-records/worksheets/`, outside the skill folders so they survive updates. The worksheet skill reads a student's tutoring record, including its latest Analysis section, but never changes it. One-page student summaries live in `~/eng-teaching-records/one-pagers/`. Lesson transcripts live in `~/eng-teaching-records/transcripts/`, and the analysis skill adds an Analysis section to the student's tutoring record. Analysis needs Python 3 with `faster-whisper` and `ffmpeg` installed (`pip install faster-whisper`). The dashboard skill needs only Python 3 and writes `~/eng-teaching-records/dashboard/dashboard.html`.
 
 ## For developers
 
