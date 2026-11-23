@@ -39,10 +39,10 @@ Everything lives in `~/eng-teaching-records/`, outside the skill folders, so upd
 - the top level holds only records and known folders
 - every record has pronouns and a level in its Profile
 - every transcript has an errors file, a ledger session and an Analysis section in the record (lesson reports are optional and are not required)
-- the glossary, student profile and one-pager exist, are not older than the latest transcript, and have a current .docx
+- the glossary and student profile exist, are not older than the latest transcript, and have a current .docx (a one-pager is built only on request, so a missing one is not reported; an existing one is checked the same way)
 - no lesson has several handout versions
 
-Run it at the end of every analysis (workflow step 11) and whenever the tutor asks if the folder is in order. Fix ERRORs before reporting; tell the tutor about WARNs.
+Run it once per student at the end of an analysis or batch (workflow step 10) and whenever the tutor asks if the folder is in order. Fix ERRORs before reporting; tell the tutor about WARNs.
 
 ## Records first
 Before saying anything about a student, including pronouns, level, location, job, family or what was taught, read their record. Never infer pronouns from a name or carry them over from another student. If the record states none, use they/them and ask the tutor. If a fact is not in the record, say it is not recorded. If the tutor says the record is wrong or incomplete, look in the other folders and the tutor's own files before agreeing or disagreeing, and say what you checked.

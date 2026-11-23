@@ -7,14 +7,14 @@
 - Reading the tracker
 
 ## How to tag
-Tag errors after step 5 (speaker labels are final), while writing the analysis in step 7. The tags feed `scripts/error_ledger.py`, which counts them, divides by the student's word count and draws the trend. The counting is mechanical; the judgment is yours, so be consistent.
+Tag errors in step 4, in the same single read of the raw transcript in which you write the speaker map. Use the `mm:ss` of the raw line, and tag only lines you assigned with a certain speaker. The tags feed `scripts/error_ledger.py`, which counts them, divides by the student's word count and draws the trend. The counting is mechanical; the judgment is yours, so be consistent.
 
-- **Read the whole transcript, not a sample.** A tracker built on the first half of a lesson is not comparable with one built on the whole.
+- **Read the whole transcript, not a sample, and read it once.** Tag as you go; do not re-read for tagging. A tracker built on the first half of a lesson is not comparable with one built on the whole.
 - **One tag per error.** Do not tag the same phrase twice. Several different errors in one sentence get one tag each.
 - **Student speech only.** Skip the tutor's model sentences, repeats of a phrase the tutor just said, and lines marked `[speaker uncertain]`.
 - **Skip self-repairs.** If the student fixes it in the same breath ("they are not they are barely speaking"), do not tag it. Mention it as a strength in the analysis.
 - **Skip pronunciation and transcription noise.** Only tag what the written transcript shows. If Whisper may have smoothed a line, leave it.
-- **Quote exactly**, errors included, with the `mm:ss` of the turn and a short correction.
+- **Quote exactly**, errors included, with the `mm:ss` of the line and a short correction. `label_transcript.py` and `error_ledger.py add` then check that each quote really is in the student's turns, and `add` prints a five-tag spot-check.
 - Save the tags as `~/eng-teaching-records/transcripts/<slug>-<YYYY-MM-DD>-errors.tsv`, one error per line, tab separated: `CODE`, `mm:ss`, quote, correction. Lines starting with `#` are ignored.
 
 ## The codes

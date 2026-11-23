@@ -9,7 +9,7 @@
 ## Purpose and audience
 A tutor-only Word document that pulls everything the record knows about one student into a few pages: who they are, how they have progressed, what is improving or stuck, and what to do next. The student record grows with every lesson and gets long; the profile is the current summary of it. Overwrite the previous version after each new analysis, keeping the updated date in the subtitle.
 
-Build it right after the lesson report (workflow step 10), or on request ("overall analysis for <student>") from the record and the ledger, with no new recording needed.
+Build it once after a lesson or a batch of lessons is saved (workflow step 9), or on request ("overall analysis for <student>") from the record and the ledger, with no new recording needed.
 
 ## Content and order
 Three to five pages. Numbers come from the record, `error_ledger.py history` and `error_ledger.py show`.

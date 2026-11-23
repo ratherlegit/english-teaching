@@ -16,7 +16,17 @@
 - Back up the record before editing (copy to the scratchpad).
 
 ## Labeled transcript file
-Heading `# <Name>: Lesson Transcript, <date> (<lesson label>)`, then a short "How reliable this is" block (source file and length, Whisper model, labels inferred from context, uncertain lines marked, Whisper may have corrected learner grammar, pronunciation cannot be judged, recording conditions), then `---` on its own line, then turns in this exact form (talk_stats.py parses it):
+Built by `scripts/label_transcript.py` from the raw file, a speaker map and a header; the analyst does not retype it. The map lists only the speaker changes, by raw line number (as shown by Read):
+
+```
+1 T
+4 S
+9 T?        # tutor, uncertain: the turn gets [speaker uncertain]
+14 "so today you" T   # speaker changes mid-line, where these words begin (Whisper often joins both speakers in one line)
+fix 212 Bucharest => Budapest [heard as "Bucharest"]
+```
+
+The header file holds the heading and the reliability block. The result follows this format. Heading `# <Name>: Lesson Transcript, <date> (<lesson label>)`, then a short "How reliable this is" block (source file and length, Whisper model, labels inferred from context, uncertain lines marked, Whisper may have corrected learner grammar, pronunciation cannot be judged, recording conditions), then `---` on its own line, then turns in this exact form (talk_stats.py parses it):
 
 `**[12:34] Tutor:** text` and `**[12:40] Student:** text` (use the student's first name as the label).
 

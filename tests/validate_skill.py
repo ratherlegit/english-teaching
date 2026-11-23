@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.19.1")
+        self.assertEqual(data["version"], "2.20.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -818,6 +818,160 @@ class TestDashboardSkill(unittest.TestCase):
             self.assertEqual(html.count("</script>"), 1)
             self.assertNotIn("NOPE", html)
             self.assertEqual(oct(out.stat().st_mode & 0o777), "0o600")
+
+
+class TestLabelTranscript(unittest.TestCase):
+    RAW = ("[00:01] Hello how are you\n[00:03] I am fine thank you\n[00:05] Tell me about your weekend\n"
+           "[00:09] I go to Bucharest with my friend\n[00:14] yeah\n[00:15] Can you tell me more\n"
+           "[00:18] we visit a museum and it was very interesting for me\n")
+    HEADER = "# Ana: Lesson Transcript, 2026-01-05 (x)\n\n**How reliable this is**\n- labels inferred\n"
+    SCRIPT = SA_DIR / "scripts" / "label_transcript.py"
+
+    def _run(self, tmp, map_text, header=None, raw=None):
+        tmp = Path(tmp)
+        (tmp / "raw.txt").write_text(self.RAW if raw is None else raw, encoding="utf-8")
+        (tmp / "map.txt").write_text(map_text, encoding="utf-8")
+        (tmp / "header.md").write_text(self.HEADER if header is None else header, encoding="utf-8")
+        return subprocess.run([sys.executable, "-I", str(self.SCRIPT), str(tmp / "raw.txt"), str(tmp / "map.txt"),
+                               str(tmp / "header.md"), str(tmp / "out.md"), "--student", "Ana"],
+                              capture_output=True, text=True)
+
+    GOOD = "1 T\n2 S\n3 T\n4 S\n5 T?\n6 T\n7 S\nfix 4 Bucharest => Budapest [heard as \"Bucharest\"]\n"
+
+    def test_builds_exact_turn_format_and_merges(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            run = self._run(tmp, self.GOOD)
+            self.assertEqual(run.returncode, 0, run.stderr)
+            out = (Path(tmp) / "out.md").read_text(encoding="utf-8")
+            head, body = out.split("\n---\n", 1)
+            self.assertTrue(head.startswith("# Ana: Lesson Transcript"))
+            self.assertIn("**[00:01] Tutor:** Hello how are you", body)
+            self.assertIn("**[00:03] Ana:** I am fine thank you", body)
+            self.assertIn('I go to Budapest [heard as "Bucharest"] with my friend', body)
+            self.assertIn("**[00:14] Tutor:** yeah [speaker uncertain]", body)
+            self.assertIn("**[00:15] Tutor:** Can you tell me more", body)
+            self.assertEqual(oct((Path(tmp) / "out.md").stat().st_mode & 0o777), "0o600")
+            self.assertIn("Uncertain turns", run.stdout)
+            self.assertNotIn(EM_DASH, out)
+
+    def test_mid_line_speaker_changes(self):
+        raw = ("[00:01] Hello how are you I am fine thank you\n[00:09] yes good tell me about your weekend I went to a museum\n"
+               "[00:20] and then we ate lunch what did you eat pizza\n")
+        mapping = ('1 T\n1 "I am fine" S\n2 "tell me" T\n2 "I went" S\n3 "what did" T\n3 "pizza" S\n')
+        with tempfile.TemporaryDirectory() as tmp:
+            run = self._run(tmp, mapping, raw=raw)
+            self.assertEqual(run.returncode, 0, run.stderr)
+            body = (Path(tmp) / "out.md").read_text(encoding="utf-8").split("\n---\n", 1)[1]
+            self.assertIn("**[00:01] Tutor:** Hello how are you", body)
+            self.assertIn("Ana:** I am fine thank you yes good", body)
+            self.assertIn("Tutor:** tell me about your weekend", body)
+            self.assertIn("Ana:** I went to a museum and then we ate lunch", body)
+            self.assertIn("Tutor:** what did you eat", body)
+            self.assertIn("Ana:** pizza", body)
+            times = re.findall(r"\*\*\[(\d+):(\d+)\] ", body)
+            secs = [int(m) * 60 + int(s) for m, s in times]
+            self.assertEqual(secs, sorted(secs))
+
+    def test_output_is_what_the_ledger_and_stats_parse(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(self._run(tmp, self.GOOD).returncode, 0)
+            out = Path(tmp) / "out.md"
+            stats = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "talk_stats.py"), str(out), "Ana"],
+                                   capture_output=True, text=True)
+            self.assertEqual(stats.returncode, 0, stats.stderr)
+            self.assertIn("Ana", stats.stdout)
+            (Path(tmp) / "errors.tsv").write_text("TENSE\t00:18\twe visit a museum\twe visited a museum\n"
+                                                  "VPREP\t00:05\tTell me about\tx\n", encoding="utf-8")
+            add = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "add", "ana",
+                                  "2026-01-05", str(out), "Ana", str(Path(tmp) / "errors.tsv"),
+                                  "--records-dir", tmp], capture_output=True, text=True)
+            self.assertEqual(add.returncode, 1, add.stdout)  # the second quote is the tutor's words
+            self.assertIn("Tell me about", add.stderr)
+            (Path(tmp) / "errors.tsv").write_text("TENSE\t00:18\twe visit a museum\twe visited a museum\n", encoding="utf-8")
+            add = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "add", "ana",
+                                  "2026-01-05", str(out), "Ana", str(Path(tmp) / "errors.tsv"),
+                                  "--records-dir", tmp], capture_output=True, text=True)
+            self.assertEqual(add.returncode, 0, add.stderr)
+            self.assertIn("per 1,000 words", add.stdout)
+            self.assertIn("Spot-check", add.stdout)
+            self.assertIn("we visit a museum", add.stdout)
+            self.assertIn("turn 00:18: we visit a museum and it was very interesting", add.stdout)
+
+    def test_spot_check_shows_text_around_a_tag_in_a_long_turn(self):
+        filler = " ".join(["blah"] * 60)
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "t.md"
+            out.write_text("# t\n---\n\n**[00:01] Ana:** " + filler + " he go to school every day " + filler + "\n", encoding="utf-8")
+            (Path(tmp) / "e.tsv").write_text("SVA\t00:30\the go to school\the goes to school\n", encoding="utf-8")
+            add = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "add", "ana",
+                                  "2026-01-05", str(out), "Ana", str(Path(tmp) / "e.tsv"), "--records-dir", tmp],
+                                 capture_output=True, text=True)
+            self.assertEqual(add.returncode, 0, add.stderr)
+            self.assertIn("...", add.stdout)
+            self.assertIn("he go to school every day", add.stdout)
+
+    def test_uncertain_tag_warns(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(self._run(tmp, "1 T\n2 S\n3 T\n4 S\n5 T\n6 T\n7 S?\n").returncode, 0)
+            (Path(tmp) / "errors.tsv").write_text("TENSE\t00:18\twe visit a museum\twe visited a museum\n", encoding="utf-8")
+            add = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "add", "ana",
+                                  "2026-01-05", str(Path(tmp) / "out.md"), "Ana", str(Path(tmp) / "errors.tsv"),
+                                  "--records-dir", tmp], capture_output=True, text=True)
+            self.assertEqual(add.returncode, 0, add.stderr)
+            self.assertIn("only inside [speaker uncertain]", add.stdout)
+
+    def test_bad_maps_are_refused_and_nothing_is_written(self):
+        bad = {
+            "first line unassigned": "2 S\n",
+            "not increasing": "1 T\n4 S\n3 T\n",
+            "past the end": "1 T\n40 S\n",
+            "garbage entry": "1 T\nstudent from 4\n",
+            "fix text missing": "1 T\nfix 4 Paris => Rome\n",
+            "fix line missing": "1 T\nfix 99 a => b\n",
+            "anchor missing": '1 T\n4 "zzz" S\n',
+            "second entry on a line needs an anchor": "1 T\n4 S\n4 T\n",
+            "fix across a speaker change": '1 T\n4 S\n4 "to Bucharest" T\nfix 4 go to Bucharest => go to Budapest\n',
+        }
+        for name, text in bad.items():
+            with self.subTest(name), tempfile.TemporaryDirectory() as tmp:
+                run = self._run(tmp, text)
+                self.assertEqual(run.returncode, 1, name)
+                self.assertFalse((Path(tmp) / "out.md").exists(), name)
+
+    def test_bad_header_and_raw_are_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(self._run(tmp, self.GOOD, header="no title\n").returncode, 1)
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(self._run(tmp, self.GOOD, header="# T\n---\nmore\n").returncode, 1)
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(self._run(tmp, self.GOOD, header="# T \u2014 x\n").returncode, 1)
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(self._run(tmp, self.GOOD, raw="[00:01] ok\nnot a timestamp line\n").returncode, 1)
+
+    def test_flags_student_turns_that_read_like_tutor_prompts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            run = self._run(tmp, "1 T\n2 S\n3 T\n4 S\n5 S\n6 S\n7 S\n")
+            self.assertEqual(run.returncode, 0, run.stderr)
+            self.assertIn("read like tutor prompts", run.stdout)
+            self.assertIn("Can you tell me more", run.stdout)
+
+    def test_audit_does_not_require_a_one_pager(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for d in ("transcripts", "error-ledgers", "glossaries", "student-profiles"):
+                (root / d).mkdir()
+            (root / "ana.md").write_text("# Student Record: Ana\n\n## Profile\n- Pronouns: she/her\n- Level: B1\n\n"
+                                         "## Analysis: transcript of 2026-01-05 (x; tracker only)\ntext\n")
+            (root / "transcripts" / "ana-2026-01-05-transcript.md").write_text("# t\n---\n**[00:01] Ana:** hi\n")
+            (root / "transcripts" / "ana-2026-01-05-errors.tsv").write_text("")
+            (root / "error-ledgers" / "ana.json").write_text('{"student": "ana", "sessions": [{"date": "2026-01-05"}], "scores": []}')
+            (root / "glossaries" / "ana.txt").write_text("Ana")
+            (root / "student-profiles" / "ana-profile.md").write_text("# x\n*Updated 2026-01-06*\n")
+            (root / "student-profiles" / "ana-profile.docx").write_text("x")
+            run = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "records_audit.py"),
+                                  "--records-dir", tmp], capture_output=True, text=True)
+            self.assertEqual(run.returncode, 0, run.stdout)
+            self.assertNotIn("one-pager", run.stdout)
 
 
 if __name__ == "__main__":

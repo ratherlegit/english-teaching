@@ -10,7 +10,7 @@
 ## Purpose and audience
 A single page for the tutor to read before planning the next lesson. Tutor-only: it may quote errors and include teaching notes. Show CEFR level and the 1-100 score only; no other rating systems.
 
-Build it right after an analysis (workflow step 8), or on request ("one-pager for <student>") from the latest Analysis section in the student's record, with no new recording needed. If the record has no Analysis section, say so and offer to analyze a recording.
+Build it only on request ("one-pager for <student>") from the latest Analysis section in the student's record, with no new recording needed. If the record has no full Analysis section (a "tracker only" stub is not enough), say so and offer to analyze a recording.
 
 ## Content and order
 1. Title: `# <Name>: One-Page Summary`

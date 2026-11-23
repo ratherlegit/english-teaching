@@ -9,7 +9,7 @@
 ## Purpose and audience
 A tutor-only Word document for one recorded lesson: the evidence behind the analysis, in a form you can read in five minutes and keep. The one-pager is a single page to skim before planning; the lesson report is the full picture of one lesson (what was covered, how much the student spoke, which errors appeared, what stuck, what to try next). It may quote errors and includes tips about the tutor's own teaching. It is not for the student.
 
-Build it right after the analysis (workflow step 10), or on request for any lesson that already has a saved analysis and transcript.
+Build it only on request, for any lesson that already has a saved analysis and transcript.
 
 ## Content and order
 Aim for two to four pages. Use real numbers from the Analysis section, `talk_stats.py`, `tutor_stats.py` and the Error Tracker; never invent one.

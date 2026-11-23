@@ -18,6 +18,9 @@ names them (default "first part,second part"). --scores/--level/--talk-pct store
 scores for the session; `score` stores them for an earlier session that has no tagged errors;
 `history` prints the Score History table (with a three-recording average and the noise note) and a grammar check that compares each session's error rate with the provisional grammar anchor; `phases` prints each code's rate per phase for every session, so open talk is compared with open talk. Every quote in errors.tsv must appear in the
 transcript (ignoring case and punctuation) or the run stops; --allow-unmatched overrides that.
+After saving, `add` prints the error rate per 1,000 words, a warning for any tag that sits only in a
+[speaker uncertain] turn, and a spot-check: five tagged errors (the same five every run for a date)
+with the student's turn around each, so the tags can be confirmed by eye in a minute.
 
 errors.tsv has one error per line, tab separated:  CODE <TAB> mm:ss <TAB> quote <TAB> correction
 Lines starting with # and blank lines are skipped. Codes are listed by `codes` and in
@@ -102,6 +105,53 @@ def unmatched_quotes(examples, transcript, student):
             if norm(q) not in haystack:
                 bad.append((code, t, q))
     return bad
+
+
+def student_turns(transcript, student):
+    text = open(transcript, encoding="utf-8").read().split("\n---\n", 1)[-1]
+    return [(int(m) * 60 + int(s), f"{int(m):02d}:{s}", body) for m, s, who, body in
+            re.findall(r"\*\*\[(\d+):(\d+)\] ([^:*]+):\*\* (.*)", text) if who == student]
+
+
+def spot_check(examples, transcript, student, seed, size=5):
+    """A few tagged errors with the student's turn around each, so the tags can be checked by eye.
+
+    Also returns the tags that sit only inside [speaker uncertain] turns (those should not be tagged).
+    The sample is seeded by the lesson date, so the same lesson always shows the same sample."""
+    import random
+    turns = student_turns(transcript, student)
+    rows = [(c, t, q, f) for c, rs in sorted(examples.items()) for t, q, f in rs]
+
+    def home(t, q):
+        m = re.fullmatch(r"(\d+):(\d{2})", t)
+        want = int(m.group(1)) * 60 + int(m.group(2)) if m else 0
+        hits = [x for x in turns if norm(q) in norm(re.sub(r"\[[^\]]*\]", " ", x[2]))]
+        return min(hits, key=lambda x: abs(x[0] - want)) if hits else None
+
+    uncertain = []
+    for c, t, q, _f in rows:
+        h = home(t, q)
+        if h and "[speaker uncertain]" in h[2]:
+            others = [x for x in turns if norm(q) in norm(re.sub(r"\[[^\]]*\]", " ", x[2]))
+                      and "[speaker uncertain]" not in x[2]]
+            if not others:
+                uncertain.append((c, t, q))
+    picked = random.Random(seed).sample(rows, min(size, len(rows)))
+    lines = []
+    for c, t, q, f in sorted(picked, key=lambda r: r[1]):
+        h = home(t, q)
+        context = ""
+        if h:
+            body = re.sub(r"\s+", " ", h[2])
+            words = re.findall(r"[A-Za-z0-9']+", q)
+            m = re.search(r"[\W_]+".join(map(re.escape, words)), body, re.I) if words else None
+            if m:
+                a, b = max(0, m.start() - 70), min(len(body), m.end() + 70)
+                context = ("..." if a else "") + body[a:b] + ("..." if b < len(body) else "")
+            else:
+                context = body[:170]
+        lines.append(f"  {c} [{t}] {q!r} -> {f!r}\n      turn {h[1] if h else '?'}: {context}")
+    return lines, uncertain
 
 
 def split_seconds(value):
@@ -416,7 +466,18 @@ def main():
             set_scores(led, date, f, v, g, level, int(talk_pct) if talk_pct else None)
         os.makedirs(os.path.dirname(ledger_path), exist_ok=True)
         json.dump(led, open(ledger_path, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
-        print(f"Saved {date}: {words} student words, {sum(counts.values())} errors tagged -> {ledger_path}")
+        total = sum(counts.values())
+        print(f"Saved {date}: {words} student words, {total} errors tagged "
+              f"({1000 * total / words:.1f} per 1,000 words) -> {ledger_path}")
+        sample, uncertain = spot_check(examples, transcript, student, date)
+        if uncertain:
+            print(f"WARN: {len(uncertain)} tag(s) sit only inside [speaker uncertain] turns "
+                  "(untag them or settle the speaker):")
+            for c, t, q in uncertain[:10]:
+                print(f"  {c} [{t}] {q!r}")
+        if sample:
+            print(f"Spot-check ({len(sample)} of {total} tags, same sample every run; open the transcript at these times to confirm):")
+            print("\n".join(sample))
     elif cmd == "score":
         if len(a) not in (7, 8) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", a[2]):
             sys.exit(__doc__)

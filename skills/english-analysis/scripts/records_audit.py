@@ -12,7 +12,7 @@ Layout it expects (see references/records-layout.md):
 
 Each finding is ERROR (fix it) or WARN (look at it). The exit code is 1 if there is any ERROR.
 Checks per student: record exists and its Profile names pronouns and a level; every transcript
-has an errors.tsv, a ledger session with scores and an Analysis section; the glossary, student profile and one-pager exist, are not older than the latest
+has an errors.tsv, a ledger session with scores and an Analysis section; the glossary and student profile exist (a one-pager only if requested), are not older than the latest
 transcript, and have a current .docx; no lesson has several handout versions.
 At the top level: loose files other than records, and folders outside the layout.
 """
@@ -126,7 +126,7 @@ def audit_student(root, slug, out):
         md = os.path.join(root, folder, name + ".md")
         dx = os.path.join(root, folder, name + ".docx")
         if not os.path.exists(md):
-            if dates:
+            if dates and folder == "student-profiles":  # one-pagers are built only on request
                 out.append(("WARN", slug, f"no {label} ({folder}/{name}.md)"))
             continue
         if not os.path.exists(dx):
