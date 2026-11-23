@@ -66,7 +66,7 @@ class TestScaffold(unittest.TestCase):
     def test_plugin_json(self):
         data = json.loads(read(ROOT / ".claude-plugin/plugin.json"))
         self.assertEqual(data["name"], "english-teaching")
-        self.assertEqual(data["version"], "2.20.0")
+        self.assertEqual(data["version"], "2.21.0")
         self.assertEqual(data["license"], "MIT")
         self.assertIn("ratherlegit/english-teaching", data["repository"])
 
@@ -586,6 +586,29 @@ class TestStudentAnalysisSkill(unittest.TestCase):
         self.assertIn("followed by a student answer of 15+ words: 1", out.stdout)
         self.assertIn("Before 01:00", out.stdout)
         self.assertIn("From 01:00", out.stdout)
+
+    def test_tutor_stats_pace_stacked_and_repeats(self):
+        sample = ("# T\n\n---\n\n**[00:00] Tutor:** " + ("word " * 60) + "Is that clear? Do you see it?\n\n"
+                  "**[01:00] Maria:** Sorry? Can you say again?\n\n**[01:10] Tutor:** Okay.\n")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "t.md"
+            path.write_text(sample, encoding="utf-8")
+            out = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "tutor_stats.py"), str(path), "Maria"],
+                                 capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertIn("tutor pace: about 67 wpm over 1 turns", out.stdout)
+        self.assertIn("stacking 2+ questions: 1 of 2", out.stdout)
+        self.assertIn("requests for repetition or help: 1", out.stdout)
+
+    def test_ledger_saves_and_shows_tutor_metrics(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            res = self._ledger(tmp, "ART\t00:05\tthe market\ta market\n")
+            self.assertEqual(res.returncode, 0, res.stderr)
+            shown = subprocess.run([sys.executable, "-I", str(SA_DIR / "scripts" / "error_ledger.py"), "tutor", "maria",
+                                    "--records-dir", tmp], capture_output=True, text=True)
+            self.assertEqual(shown.returncode, 0, shown.stderr)
+            self.assertIn("| 2026-01-01 |", shown.stdout)
+            self.assertIn("Repetition requests", shown.stdout)
 
     def _ledger(self, tmp, tsv, extra=()):
         transcript = Path(tmp) / "t.md"

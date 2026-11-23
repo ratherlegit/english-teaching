@@ -24,13 +24,15 @@ Aim for two to four pages. Use real numbers from the Analysis section, `talk_sta
 8. **Vocabulary**: a table with Word, First logged, Result (solid, partial, re-taught), then one line on new words and how they landed, and one line on the pattern. Omit the table if no earlier word was reviewed
 9. **Listening and pronunciation**: what was missed or needed repeating; pronunciation targets marked low confidence
 10. **Tips for you**: the tutor tips, following `references/tutor-tips.md`
-11. **Next lesson**: three to five concrete steps that follow the profile's tutor preferences, including an opening question drawn from what the student said
-12. **How sure we are**: single-recording estimate, recording conditions, inferred speaker labels, anything the machine transcript may have smoothed
+11. **Tutor feedback** (only if the tutor asked for it; otherwise leave the section out): the table from `python3 -I scripts/error_ledger.py tutor <slug>` (one row per saved lesson, so the trend shows), then the clarity pass findings following the "Clarity pass (opt-in)" section of `references/tutor-tips.md`, then one sentence on what changed since the last lesson. Fewer than three saved lessons means no trend yet; say so
+12. **Next lesson**: three to five concrete steps that follow the profile's tutor preferences, including an opening question drawn from what the student said
+13. **How sure we are**: single-recording estimate, recording conditions, inferred speaker labels, anything the machine transcript may have smoothed
 
 ## Rules
 - Black text only, no em dashes, the profile's pronouns (they/them if none stated)
 - Names: the student by first name; refer to clients, colleagues and family by role ("a client", "the boss")
 - Quote the student exactly, errors included; every error pattern gets a quote
+- The Tutor feedback section is built only on request; the Tips for you section is always there
 - Report what is uncertain; do not round a provisional status up to a trend
 
 ## Files and building

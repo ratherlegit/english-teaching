@@ -11,6 +11,11 @@ Prints, for the whole lesson and, with --split, for the part before and after th
   - tutor turns of 100+ words (long explanations): how many, and the longest
   - tutor questions, and how many were followed by a student answer of 15+ words
   - the share of student turns that are 5 words or fewer
+  - tutor pace: median words per minute over tutor turns of 30+ words (approximate, see below)
+  - tutor turns that stack two or more questions
+  - student requests for repetition or help ("sorry?", "pardon", "what do you mean")
+Pace is turn words divided by the time to the next turn's start, so pauses inside the turn
+lower it; read it as a floor, and compare it with the student's level, not a fixed number.
 These are counts to read, not scores. Judge the teaching by reading the transcript too.
 """
 import re, sys
@@ -18,6 +23,12 @@ import re, sys
 LONG_TURN = 100      # tutor words in one turn that count as a long explanation
 OPEN_ANSWER = 15     # student words that make an answer a real answer
 SHORT_REPLY = 5      # student words or fewer is a one-line reply
+PACE_MIN_WORDS = 30  # tutor turns shorter than this are too short to time
+PACE_MAX_SEC = 180   # a gap longer than this to the next turn is not speech time
+REPEAT_RE = re.compile(
+    r"\b(sorry\?|pardon|say (that )?again|once more|one more time|repeat|"
+    r"what do you mean|i (don't|do not|didn't) (understand|get|catch)|"
+    r"what does .{1,30} mean|slower|too fast)", re.I)
 
 
 def parse(path):
@@ -47,10 +58,20 @@ def measure(turns, student, tutor):
         nxt = next((u for u in turns[i + 1:] if u["who"] != tutor), None)
         if nxt is not None and nxt["who"] == student and nxt["n"] >= OPEN_ANSWER:
             answered += 1
+    stacked = sum(1 for t in tt if t["body"].count("?") >= 2)
+    paces = []
+    for i, t in enumerate(turns[:-1]):
+        gap = turns[i + 1]["t"] - t["t"]
+        if t["who"] == tutor and t["n"] >= PACE_MIN_WORDS and 0 < gap <= PACE_MAX_SEC:
+            paces.append(60 * t["n"] / gap)
+    paces.sort()
+    pace = paces[len(paces) // 2] if paces else None
     st = [t for t in turns if t["who"] == student]
+    repeats = sum(1 for t in st if REPEAT_RE.search(t["body"]))
     short = sum(1 for t in st if t["n"] <= SHORT_REPLY)
     return {"student_words": sw, "tutor_words": tw, "tutor_turns": len(tt), "long": long_turns,
-            "questions": questions, "answered": answered, "student_turns": len(st), "short": short}
+            "questions": questions, "answered": answered, "student_turns": len(st), "short": short,
+            "stacked": stacked, "pace": pace, "pace_n": len(paces), "repeats": repeats}
 
 
 def show(label, m):
@@ -62,6 +83,10 @@ def show(label, m):
     print(f"  tutor questions: {m['questions']}; followed by a student answer of {OPEN_ANSWER}+ words: {m['answered']}")
     pct = 100 * m["short"] / (m["student_turns"] or 1)
     print(f"  student turns of {SHORT_REPLY} words or fewer: {m['short']} of {m['student_turns']} ({pct:.0f}%)")
+    pace = f"about {m['pace']:.0f} wpm over {m['pace_n']} turns" if m["pace"] else "not enough long tutor turns"
+    print(f"  tutor pace: {pace}")
+    print(f"  tutor turns stacking 2+ questions: {m['stacked']} of {m['tutor_turns']}")
+    print(f"  student requests for repetition or help: {m['repeats']}")
 
 
 def main():

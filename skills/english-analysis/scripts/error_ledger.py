@@ -10,6 +10,8 @@ Usage:
   error_ledger.py score <slug> <YYYY-MM-DD> <fluency> <vocabulary> <grammar> <level> [talk_pct]   (half points allowed, e.g. 18.5)
   error_ledger.py history <slug>
   error_ledger.py phases <slug>
+  error_ledger.py tutor <slug>
+  error_ledger.py tutor-save <slug> <YYYY-MM-DD> <labeled_transcript.md> <StudentName> [--tutor Tutor] [--split mm:ss]
   error_ledger.py codes
 
 --split mm:ss splits the lesson into two phases (for example open conversation and tutor-led
@@ -21,6 +23,11 @@ transcript (ignoring case and punctuation) or the run stops; --allow-unmatched o
 After saving, `add` prints the error rate per 1,000 words, a warning for any tag that sits only in a
 [speaker uncertain] turn, and a spot-check: five tagged errors (the same five every run for a date)
 with the student's turn around each, so the tags can be confirmed by eye in a minute.
+
+`add` also saves the tutor's measures for the session (from tutor_stats.py: student talk share, tutor pace,
+long explanations, question yield, stacked questions, repetition requests, whole lesson and per phase).
+`tutor` prints them as a table across sessions; `tutor-save` stores or refreshes them for a session already
+in the ledger (use it to backfill older lessons). Counts only, so a trend is a prompt for judgment, not a score.
 
 errors.tsv has one error per line, tab separated:  CODE <TAB> mm:ss <TAB> quote <TAB> correction
 Lines starting with # and blank lines are skipped. Codes are listed by `codes` and in
@@ -56,6 +63,46 @@ CODES = {
 PRESENT = 1.5      # errors per 1,000 words at or above this counts as "present" (about 3 in a 2,000-word session)
 MIN_TOTAL = 3      # fewer tagged instances than this across all sessions is noise, not a pattern
 CHANGE = 0.30      # relative change that counts as a real move
+
+
+def tutor_metrics(transcript, student, tutor, split=None):
+    """Tutor-side counts from tutor_stats.py (loaded from the file next to this script)."""
+    import importlib.util
+    here = os.path.dirname(os.path.abspath(__file__))
+    spec = importlib.util.spec_from_file_location("tutor_stats", os.path.join(here, "tutor_stats.py"))
+    ts = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ts)
+    turns = ts.parse(transcript)
+
+    def pack(m):
+        tot = (m["student_words"] + m["tutor_words"]) or 1
+        return {"student_pct": round(100 * m["student_words"] / tot),
+                "tutor_wpm": round(m["pace"]) if m["pace"] else None,
+                "long_turns": len(m["long"]), "tutor_turns": m["tutor_turns"],
+                "questions": m["questions"], "answered": m["answered"],
+                "stacked": m["stacked"], "repeats": m["repeats"]}
+    out = {"whole": pack(ts.measure(turns, student, tutor))}
+    if split is not None:
+        out["before"] = pack(ts.measure([t for t in turns if t["t"] < split], student, tutor))
+        out["after"] = pack(ts.measure([t for t in turns if t["t"] >= split], student, tutor))
+        out["split"] = split
+    return out
+
+
+def render_tutor(led):
+    rows = [(s["date"], s["tutor"]["whole"]) for s in sorted(led.get("sessions", []), key=lambda x: x["date"])
+            if s.get("tutor")]
+    if not rows:
+        return ""
+    out = ["| Date | Student talk | Tutor pace (wpm) | Long explanations (100+ words) | Questions with a 15+ word answer | Stacked questions | Repetition requests |",
+           "|---|---|---|---|---|---|---|"]
+    for d, m in rows:
+        pace = m["tutor_wpm"] if m["tutor_wpm"] is not None else "n/a"
+        out.append(f"| {d} | {m['student_pct']}% | {pace} | {m['long_turns']} of {m['tutor_turns']} | "
+                   f"{m['answered']} of {m['questions']} | {m['stacked']} | {m['repeats']} |")
+    out += ["", "Counts from tutor_stats.py. Pace is a floor (pauses lower it). Compare lessons with the same activity mix, "
+            "and read a change as a prompt for judgment, not a score."]
+    return "\n".join(out) + "\n"
 
 
 SLUG_RE = re.compile(r"[a-z0-9][a-z0-9_-]{0,63}")
@@ -454,6 +501,7 @@ def main():
             if len(phase_names) != 2:
                 sys.exit("--phase-names needs two names separated by a comma")
             entry["phases"] = phases(transcript, student, examples, split_seconds(split), phase_names)
+        entry["tutor"] = tutor_metrics(transcript, student, tutor, split_seconds(split) if split else None)
         led["sessions"] = [s for s in led["sessions"] if s["date"] != date]
         led["sessions"].append(entry)
         if scores:
@@ -489,6 +537,22 @@ def main():
         os.makedirs(os.path.dirname(ledger_path), exist_ok=True)
         json.dump(led, open(ledger_path, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
         print(render_history(led))
+        return
+    elif cmd == "tutor":
+        table = render_tutor(led)
+        if not table:
+            sys.exit(f"No tutor measures saved for {slug}. They are saved by `add`; use `tutor-save` for older sessions.")
+        print(table)
+        return
+    elif cmd == "tutor-save":
+        if len(a) != 5 or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", a[2]):
+            sys.exit(__doc__)
+        sess = next((x for x in led["sessions"] if x["date"] == a[2]), None)
+        if sess is None:
+            sys.exit(f"No session {a[2]} in the ledger for {slug}; run `add` first.")
+        sess["tutor"] = tutor_metrics(a[3], a[4], tutor, split_seconds(split) if split else None)
+        json.dump(led, open(ledger_path, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+        print(render_tutor(led))
         return
     elif cmd == "phases":
         table = render_phases(led)
